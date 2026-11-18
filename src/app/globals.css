@@ -1,61 +1,52 @@
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* ================================
-   RENTZONE THEME & FONT
-================================ */
+/* =================================
+   FONT & TAILWIND THEME
+================================= */
 
 @theme inline {
-  --font-sans: var(--font-polysans);
-  --font-heading: var(--font-polysans);
+  --font-sans: var(--font-schibsted);
+  --font-heading: var(--font-schibsted);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
-  --font-sans: var(--font-polysans);
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-heading: var(--font-polysans);
-
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -63,12 +54,25 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ================================
-   LIGHT THEME
-================================ */
+/* =================================
+   BRAND COLORS & LIGHT THEME
+================================= */
 
 :root {
   --radius: 0.625rem;
+
+  --rz-copper: #A6532E;
+  --rz-copper-dark: #844225;
+  --rz-beige: #F3DFC2;
+  --rz-dark-brown: #4B382B;
+  --rz-muted-brown: #806650;
+
+  --rz-heading: #8F4528;
+  --rz-heading-hover: #71351F;
+  --rz-tagline: #806650;
+
+  --rz-btn-gradient: linear-gradient(135deg, #9e4a26, #79391f);
+  --rz-btn-gradient-hover: linear-gradient(135deg, #844225, #6b3119);
 
   --background: #faf8f5;
   --foreground: #29231f;
@@ -113,11 +117,15 @@
   --sidebar-ring: #a65e3b;
 }
 
-/* ================================
+/* =================================
    DARK THEME
-================================ */
+================================= */
 
 .dark {
+  --rz-heading: #B96F48;
+  --rz-heading-hover: #D18A60;
+  --rz-tagline: #a58a72;
+
   --background: #191512;
   --foreground: #f5eee8;
 
@@ -161,9 +169,9 @@
   --sidebar-ring: #c17b52;
 }
 
-/* ================================
-   BASE STYLES
-================================ */
+/* =================================
+   GLOBAL BASE STYLES
+================================= */
 
 @layer base {
   * {
@@ -176,8 +184,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
-    min-height: 100vh;
+    @apply min-h-screen bg-background text-foreground font-sans;
   }
 
   h1,
@@ -186,8 +193,13 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-polysans), sans-serif;
+    font-family: var(--font-schibsted), Arial, sans-serif;
     font-weight: 700;
+    color: var(--rz-heading);
+  }
+
+  p {
+    color: var(--foreground);
   }
 
   button,
@@ -211,417 +223,7 @@
   }
 
   ::selection {
-    background-color: #a65e3b;
+    background-color: var(--rz-copper);
     color: #ffffff;
   }
 }
-
-
-/* =================================
-   RENTZONE BRAND COLORS
-================================= */
-
-:root {
-  --rz-copper: #A6532E;
-  --rz-copper-dark: #844225;
-  --rz-beige: #F3DFC2;
-  --rz-dark-brown: #4B382B;
-  --rz-muted-brown: #806650;
-}
-
-/* =================================
-   POLYSANS TYPOGRAPHY
-================================= */
-
-@font-face {
-  font-family: "PolySans";
-  src: local("PolySans");
-  font-style: normal;
-  font-weight: 100 900;
-}
-
-html,
-body,
-button,
-input,
-textarea,
-select {
-  font-family: "PolySans", Arial, sans-serif;
-}
-
-/* =================================
-   NAVBAR
-================================= */
-
-.rz-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  width: 100%;
-  background: var(--background);
-  border-bottom: 1px solid var(--border);
-  transition: background 0.3s ease;
-}
-
-.rz-navbar {
-  max-width: 1440px;
-  height: 82px;
-  margin: 0 auto;
-  padding: 0 5%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 30px;
-}
-
-/* Logo */
-
-.rz-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 11px;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.rz-logo-icon {
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 13px;
-  color: var(--rz-beige);
-  background: linear-gradient(
-    135deg,
-    #B56D43,
-    #914321
-  );
-  box-shadow: 0 4px 12px rgba(116, 61, 33, 0.18);
-  transition: transform 0.3s ease;
-}
-
-.rz-brand:hover .rz-logo-icon {
-  transform: rotate(-12deg);
-}
-
-.rz-brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.rz-brand-name {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  line-height: 1.1;
-  color: var(--foreground);
-}
-
-.rz-brand-tagline {
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 1.25px;
-  color: var(--muted-foreground);
-}
-
-/* Desktop Links */
-
-.rz-nav-links {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.rz-nav-link {
-  position: relative;
-  padding: 10px 14px;
-  border-radius: 9px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted-foreground);
-  text-decoration: none;
-  transition: color 0.25s ease;
-}
-
-.rz-nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: 3px;
-  left: 14px;
-  right: 14px;
-  height: 2px;
-  border-radius: 10px;
-  background: var(--rz-copper);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.3s ease;
-}
-
-.rz-nav-link:hover {
-  color: var(--rz-copper);
-}
-
-.rz-nav-link:hover::after,
-.rz-nav-link.active::after {
-  transform: scaleX(1);
-}
-
-.rz-nav-link.active {
-  color: var(--rz-copper);
-}
-
-/* Right Actions */
-
-.rz-nav-actions,
-.rz-auth-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.rz-theme-toggle {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--foreground);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s ease;
-}
-
-.rz-theme-toggle:hover {
-  color: var(--rz-copper);
-  border-color: var(--rz-copper);
-  background: rgba(166, 83, 46, 0.08);
-}
-
-.rz-login-btn {
-  padding: 10px 13px;
-  color: var(--foreground);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.25s ease;
-}
-
-.rz-login-btn:hover {
-  color: var(--rz-copper);
-}
-
-/* Primary Button */
-
-.rz-register-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 19px;
-  border: 1px solid var(--rz-copper);
-  border-radius: 10px;
-  background: linear-gradient(
-    135deg,
-    #B56D43,
-    #914321
-  );
-  color: #F3DFC2;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: 0 4px 10px rgba(166, 83, 46, 0.16);
-  transition: all 0.25s ease;
-}
-
-.rz-register-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 7px 18px rgba(166, 83, 46, 0.25);
-  background: linear-gradient(
-    135deg,
-    #A6532E,
-    #79391F
-  );
-}
-
-.rz-dashboard-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 15px;
-  border-radius: 9px;
-  background: rgba(166, 83, 46, 0.10);
-  color: var(--rz-copper);
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.rz-logout-btn {
-  border: 0;
-  background: transparent;
-  color: var(--muted-foreground);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.rz-logout-btn:hover {
-  color: var(--rz-copper);
-}
-
-/* Mobile Toggle */
-
-.rz-mobile-toggle {
-  display: none;
-  border: 0;
-  background: transparent;
-  color: var(--foreground);
-  cursor: pointer;
-}
-
-/* Mobile Menu */
-
-.rz-mobile-menu {
-  display: none;
-}
-
-/* =================================
-   RESPONSIVE NAVBAR
-================================= */
-
-@media (max-width: 900px) {
-  .rz-navbar {
-    height: 74px;
-    padding: 0 4%;
-  }
-
-  .rz-nav-links {
-    gap: 0;
-  }
-
-  .rz-nav-link {
-    padding: 9px 10px;
-    font-size: 13px;
-  }
-
-  .rz-nav-link::after {
-    left: 10px;
-    right: 10px;
-  }
-
-  .rz-auth-actions {
-    gap: 7px;
-  }
-
-  .rz-register-btn {
-    padding: 10px 13px;
-  }
-}
-
-@media (max-width: 700px) {
-  .rz-navbar {
-    height: 70px;
-    padding: 0 5%;
-  }
-
-  .rz-brand-name {
-    font-size: 22px;
-  }
-
-  .rz-logo-icon {
-    width: 41px;
-    height: 41px;
-  }
-
-  .rz-nav-links,
-  .rz-nav-actions {
-    display: none;
-  }
-
-  .rz-mobile-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-  }
-
-  .rz-mobile-menu {
-    display: block;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    padding: 15px 5% 22px;
-    background: var(--background);
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 12px 22px rgba(60, 40, 25, 0.08);
-
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-8px);
-    transition: all 0.25s ease;
-  }
-
-  .rz-mobile-menu.open {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  .rz-mobile-links {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .rz-mobile-link {
-    padding: 13px 15px;
-    border-radius: 9px;
-    color: var(--muted-foreground);
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-
-  .rz-mobile-link:hover,
-  .rz-mobile-link.active {
-    color: var(--rz-copper);
-    background: rgba(166, 83, 46, 0.10);
-  }
-
-  .rz-mobile-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 17px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .rz-mobile-actions .rz-register-btn {
-    width: 100%;
-    padding: 13px;
-  }
-
-  .rz-mobile-login,
-  .rz-mobile-logout {
-    width: 100%;
-    padding: 12px;
-    text-align: center;
-    color: var(--foreground);
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    font: inherit;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-  }
-}
-

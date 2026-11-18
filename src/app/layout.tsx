@@ -1,9 +1,15 @@
-
 import type { Metadata } from "next";
+import { Schibsted_Grotesk } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/shared/Navbar";
-import ThemeProvider from "@/components/providers/ThemeProvider";
+import { ThemeProvider } from "next-themes";
+
+const schibstedGrotesk = Schibsted_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-schibsted",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "RentZone | Rent Smart. Work Better.",
@@ -18,12 +24,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen flex flex-col antialiased">
+      <body
+        className={`${schibstedGrotesk.variable} min-h-screen flex flex-col antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem={false}
           storageKey="rentzone-theme"
+          disableTransitionOnChange
         >
           <Navbar />
           <main className="flex-1">{children}</main>
