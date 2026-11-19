@@ -2,8 +2,11 @@
 
 import AuthForm, { FormDataProps } from "@/components/auth/AuthForm";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
+  const router = useRouter();
+
   const handleSubmit = async (formData: FormDataProps) => {
     const { data, error } = await authClient.signUp.email({
       name: formData.name,
@@ -12,10 +15,15 @@ const SignUpPage = () => {
       callbackURL: "/",
     });
 
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
+    if (error) {
+      console.error("Signup failed:", error);
+      return;
+    }
 
-    console.log("sign up response", data, error);
+    if (data) {
+      router.push("/");
+      router.refresh();
+    }
   };
 
   return <AuthForm mode="signup" onSubmit={handleSubmit} />;

@@ -4,6 +4,8 @@ import "./globals.css";
 
 import Navbar from "@/components/shared/Navbar";
 import { ThemeProvider } from "next-themes";
+import Footer from "@/components/shared/Footer";
+import BackToTop from "@/components/shared/BackToTop";
 
 const schibstedGrotesk = Schibsted_Grotesk({
   subsets: ["latin"],
@@ -35,7 +37,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <BackToTop />
         </ThemeProvider>
       </body>
     </html>
