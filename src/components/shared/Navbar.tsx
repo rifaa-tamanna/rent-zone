@@ -122,13 +122,13 @@ export default function Navbar({
           ) : (
             <div className="flex items-center gap-3">
               <Link
-                href="/login"
+                href="/signin"
                 className="px-3 py-2.5 text-sm font-semibold text-[var(--rz-heading)] transition-colors hover:text-[var(--rz-heading-hover)]"
               >
-                Login
+                Sign In
               </Link>
 
-              <Link href="/register" className={primaryButton}>
+              <Link href="/signup" className={primaryButton}>
                 Get Started
                 <ArrowUpRight size={17} />
               </Link>
@@ -216,15 +216,15 @@ export default function Navbar({
           ) : (
             <>
               <Link
-                href="/login"
+                href="/signin"
                 onClick={closeMenu}
                 className="w-full rounded-[9px] border border-border px-3 py-3 text-center font-semibold text-[var(--rz-heading)]"
               >
-                Login
+                Sign In
               </Link>
 
               <Link
-                href="/register"
+                href="/signup"
                 onClick={closeMenu}
                 className={`${primaryButton} w-full`}
               >
