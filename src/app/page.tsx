@@ -1,7 +1,9 @@
 
+import CategoriesSection from "@/components/home/CategoriesSection";
 import FeaturedEquipment from "@/components/home/FeaturedEquipment";
 import Hero from "@/components/home/Hero";
 import HowItWorks from "@/components/home/How It Works";
+import ReviewsSection from "@/components/home/ReviewsSection";
 import Subscription from "@/components/home/Subscription";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 
@@ -10,8 +12,10 @@ export default function Home() {
     <>
       <Hero />
       <FeaturedEquipment />
+      <CategoriesSection />
       <WhyChooseUs />
       <HowItWorks />
+      <ReviewsSection />
       <Subscription />
     </>
   );
