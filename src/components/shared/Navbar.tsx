@@ -14,10 +14,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
-interface NavbarProps {
-  isLoggedIn?: boolean;
-  onLogout?: () => void;
-}
+import { useSession, signOut } from "@/lib/auth-client";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -26,13 +23,15 @@ const navLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
-export default function Navbar({
-  isLoggedIn = false,
-  onLogout,
-}: NavbarProps) {
+export default function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Better Auth Session
+  const { data: session, isPending } = useSession();
+
+  const isLoggedIn = !!session?.user;
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -40,6 +39,11 @@ export default function Navbar({
   };
 
   const closeMenu = () => setMenuOpen(false);
+
+  const handleLogout = async () => {
+    closeMenu();
+    await signOut();
+  };
 
   const primaryButton =
     "inline-flex items-center justify-center gap-2 rounded-[10px] border border-[var(--rz-heading)] bg-[image:var(--rz-btn-gradient)] px-5 py-3 text-sm font-bold text-[#F3DFC2] shadow-[0_4px_10px_rgba(166,83,46,0.16)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[image:var(--rz-btn-gradient-hover)] hover:shadow-[0_7px_18px_rgba(166,83,46,0.25)]";
@@ -91,6 +95,7 @@ export default function Navbar({
 
         {/* Right Actions */}
         <div className="hidden items-center gap-3 min-[701px]:flex">
+          {/* Theme Toggle */}
           <button
             type="button"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -100,7 +105,10 @@ export default function Navbar({
             {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
           </button>
 
-          {isLoggedIn ? (
+          {/* Authentication Actions */}
+          {isPending ? (
+            <div className="h-10 w-28 animate-pulse rounded-lg bg-muted" />
+          ) : isLoggedIn ? (
             <div className="flex items-center gap-2">
               <Link
                 href="/dashboard"
@@ -113,10 +121,10 @@ export default function Navbar({
 
               <button
                 type="button"
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="text-sm font-semibold text-[var(--rz-heading)] transition-colors hover:text-[var(--rz-heading-hover)]"
               >
-                Logout
+                Sign Out
               </button>
             </div>
           ) : (
@@ -182,6 +190,7 @@ export default function Navbar({
         </div>
 
         <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4">
+          {/* Mobile Theme Toggle */}
           <button
             type="button"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -191,26 +200,26 @@ export default function Navbar({
             {theme === "dark" ? "Light Mode" : "Dark Mode"}
           </button>
 
-          {isLoggedIn ? (
+          {/* Mobile Authentication Actions */}
+          {isPending ? (
+            <div className="h-11 w-full animate-pulse rounded-lg bg-muted" />
+          ) : isLoggedIn ? (
             <>
               <Link
                 href="/dashboard"
                 onClick={closeMenu}
                 className={primaryButton}
               >
+                <LayoutDashboard size={17} />
                 Dashboard
-                <ArrowUpRight size={17} />
               </Link>
 
               <button
                 type="button"
-                onClick={() => {
-                  closeMenu();
-                  onLogout?.();
-                }}
+                onClick={handleLogout}
                 className="w-full rounded-[9px] border border-border px-3 py-3 text-center font-semibold text-[var(--rz-heading)]"
               >
-                Logout
+                Sign Out
               </button>
             </>
           ) : (
