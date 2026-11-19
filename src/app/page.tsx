@@ -1,4 +1,5 @@
 
+import FeaturedEquipment from "@/components/home/FeaturedEquipment";
 import Hero from "@/components/home/Hero";
 import HowItWorks from "@/components/home/How It Works";
 import Subscription from "@/components/home/Subscription";
@@ -8,6 +9,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <FeaturedEquipment />
       <WhyChooseUs />
       <HowItWorks />
       <Subscription />
