@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
 
 import {
   Mail,
@@ -77,9 +83,12 @@ const mutedText = "text-[#C8B9AA] dark:text-[#74665B]";
 
 const softText = "text-[#B8A99A] dark:text-[#887B70]";
 
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
 export default function ContactUsPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [submitted, setSubmitted] = useState(false);
+  const reduceMotion = !!useReducedMotion();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -89,64 +98,220 @@ export default function ContactUsPage() {
     e.currentTarget.reset();
   };
 
+  const offset = reduceMotion ? 0 : 24;
+  const dur = reduceMotion ? 0 : 0.6;
+  const spring = { type: "spring", stiffness: 400, damping: 20 } as const;
+
+  const stagger = (child = 0.1, delay = 0.05): Variants => ({
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: reduceMotion ? 0 : child,
+        delayChildren: reduceMotion ? 0 : delay,
+      },
+    },
+  });
+
+  const fadeUp: Variants = {
+    hidden: { opacity: 0, y: offset },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: dur, ease: EASE },
+    },
+  };
+
+  const cardUp: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 32 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: dur, ease: EASE },
+    },
+  };
+
+  const featureItem: Variants = {
+    hidden: { opacity: 0, x: reduceMotion ? 0 : -24 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: reduceMotion ? 0 : 0.55, ease: EASE },
+    },
+  };
+
+  const popIn: Variants = {
+    hidden: { opacity: 0, scale: reduceMotion ? 1 : 0.6 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { type: "spring", stiffness: 260, damping: 18 },
+    },
+  };
+
+  const formCard: Variants = {
+    hidden: {
+      opacity: 0,
+      x: reduceMotion ? 0 : 40,
+      scale: reduceMotion ? 1 : 0.98,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        duration: reduceMotion ? 0 : 0.8,
+        ease: EASE,
+        when: "beforeChildren",
+        staggerChildren: reduceMotion ? 0 : 0.08,
+      },
+    },
+  };
+
+  const formField: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 16 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: reduceMotion ? 0 : 0.45, ease: EASE },
+    },
+  };
+
   return (
     <main className="overflow-hidden bg-white text-[#211A15] transition-colors duration-500 dark:bg-[#171310] dark:text-[#F3DFC2]">
       {/* ================= SECTION 01: CONTACT HERO ================= */}
       <section className="relative bg-[#F8F4EE] py-16 transition-colors duration-500 dark:bg-[#211A15] md:py-24">
-        <div className="absolute -left-24 top-10 size-64 rounded-full bg-[#A6532E]/10 blur-3xl" />
-        <div className="absolute -right-20 bottom-0 size-72 rounded-full bg-[#A6532E]/10 blur-3xl" />
+        {/* Floating glows */}
+        <motion.div
+          aria-hidden="true"
+          animate={
+            reduceMotion
+              ? undefined
+              : { x: [0, 28, 0], y: [0, 20, 0], opacity: [0.7, 1, 0.7] }
+          }
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -left-24 top-10 size-64 rounded-full bg-[#A6532E]/10 blur-3xl"
+        />
+        <motion.div
+          aria-hidden="true"
+          animate={
+            reduceMotion
+              ? undefined
+              : { x: [0, -26, 0], y: [0, -18, 0], opacity: [0.7, 1, 0.7] }
+          }
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -right-20 bottom-0 size-72 rounded-full bg-[#A6532E]/10 blur-3xl"
+        />
 
         <div className="relative mx-auto max-w-[1440px] px-[5%]">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#A6532E]/20 bg-[#A6532E]/5 px-4 py-2 text-xs font-bold uppercase tracking-[1.5px] text-[#A6532E]">
-              <MessageCircle size={15} />
+          <motion.div
+            variants={stagger(0.12, 0.05)}
+            initial="hidden"
+            animate="visible"
+            className="mx-auto max-w-3xl text-center"
+          >
+            <motion.span
+              variants={fadeUp}
+              className="inline-flex items-center gap-2 rounded-full border border-[#A6532E]/20 bg-[#A6532E]/5 px-4 py-2 text-xs font-bold uppercase tracking-[1.5px] text-[#A6532E]"
+            >
+              <motion.span
+                aria-hidden="true"
+                animate={
+                  reduceMotion
+                    ? undefined
+                    : { rotate: [0, 12, -8, 0], scale: [1, 1.2, 1] }
+                }
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  repeatDelay: 1.5,
+                  ease: "easeInOut",
+                }}
+                className="inline-flex"
+              >
+                <MessageCircle size={15} />
+              </motion.span>
               Get In Touch
-            </span>
+            </motion.span>
 
-            <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+            <motion.h1
+              variants={fadeUp}
+              className="mt-6 text-4xl font-extrabold leading-tight tracking-tight md:text-5xl lg:text-6xl"
+            >
               Let's Start a
               <span className="block text-[#A6532E]">Conversation.</span>
-            </h1>
+            </motion.h1>
 
-            <p
+            <motion.p
+              variants={fadeUp}
               className={`mx-auto mt-6 max-w-2xl text-sm leading-8 ${mutedText} md:text-base`}
             >
               Have a question, need assistance, or want to know more about
               RentZone? We're here to help. Reach out to us and let's make your
               rental experience better.
-            </p>
+            </motion.p>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                href="#contact-form"
-                className="inline-flex items-center gap-2 rounded-xl bg-[linear-gradient(135deg,#B56D43,#914321)] px-6 py-3.5 text-sm font-bold text-[#F3DFC2] shadow-lg shadow-[#A6532E]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            <motion.div
+              variants={fadeUp}
+              className="mt-8 flex flex-wrap justify-center gap-4"
+            >
+              <motion.div
+                whileHover={reduceMotion ? undefined : { y: -4 }}
+                whileTap={{ scale: 0.97 }}
+                transition={spring}
               >
-                Send a Message
-                <ArrowRight size={17} />
-              </Link>
+                <Link
+                  href="#contact-form"
+                  className="group/btn inline-flex items-center gap-2 rounded-xl bg-[linear-gradient(135deg,#B56D43,#914321)] px-6 py-3.5 text-sm font-bold text-[#F3DFC2] shadow-lg shadow-[#A6532E]/20 transition-shadow duration-300 hover:shadow-xl"
+                >
+                  Send a Message
+                  <ArrowRight
+                    size={17}
+                    className="transition-transform duration-300 group-hover/btn:translate-x-1"
+                  />
+                </Link>
+              </motion.div>
 
-              <Link
-                href="/rentals"
-                className="inline-flex items-center gap-2 rounded-xl border border-[#A6532E]/25 px-6 py-3.5 text-sm font-bold text-[#A6532E] transition-all duration-300 hover:bg-[#A6532E] hover:text-white"
+              <motion.div
+                whileHover={reduceMotion ? undefined : { y: -4 }}
+                whileTap={{ scale: 0.97 }}
+                transition={spring}
               >
-                Explore Rentals
-              </Link>
-            </div>
-          </div>
+                <Link
+                  href="/rentals"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#A6532E]/25 px-6 py-3.5 text-sm font-bold text-[#A6532E] transition-colors duration-300 hover:bg-[#A6532E] hover:text-white"
+                >
+                  Explore Rentals
+                </Link>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
           {/* Contact Highlights */}
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div
+            variants={stagger(0.12, 0.45)}
+            initial="hidden"
+            animate="visible"
+            className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {contactInfo.map((item) => {
               const Icon = item.icon;
 
               return (
-                <div
+                <motion.div
                   key={item.title}
-                  className="rounded-2xl border border-[#A6532E]/10 bg-white/80 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-[#F3DFC2]/10 dark:bg-[#2B211B]"
+                  variants={cardUp}
+                  whileHover={reduceMotion ? undefined : { y: -6 }}
+                  className="rounded-2xl border border-[#A6532E]/10 bg-white/80 p-5 shadow-sm transition-shadow duration-300 hover:shadow-lg dark:border-[#F3DFC2]/10 dark:bg-[#2B211B]"
                 >
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-[#A6532E]/10 text-[#A6532E]">
+                  <motion.div
+                    whileHover={
+                      reduceMotion ? undefined : { rotate: -8, scale: 1.08 }
+                    }
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className="flex size-12 items-center justify-center rounded-xl bg-[#A6532E]/10 text-[#A6532E]"
+                  >
                     <Icon size={23} />
-                  </div>
+                  </motion.div>
 
                   <h3 className="mt-5 text-base font-bold">{item.title}</h3>
 
@@ -157,10 +322,10 @@ export default function ContactUsPage() {
                   <p className={`mt-2 text-xs leading-6 ${softText}`}>
                     {item.description}
                   </p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -168,72 +333,100 @@ export default function ContactUsPage() {
       <section className="bg-[#211A15] py-16 text-[#F3DFC2] transition-colors duration-500 dark:bg-[#F8F4EE] dark:text-[#211A15] md:py-24">
         <div className="mx-auto grid max-w-[1440px] gap-12 px-[5%] lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
           {/* Left Content */}
-          <div className="flex flex-col justify-center">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#D99A70]/25 bg-[#A6532E]/10 px-4 py-2 text-xs font-bold uppercase tracking-[1.5px] text-[#D99A70] dark:border-[#A6532E]/20 dark:text-[#A6532E]">
+          <motion.div
+            variants={stagger(0.11, 0.05)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            className="flex flex-col justify-center"
+          >
+            <motion.span
+              variants={fadeUp}
+              className="inline-flex w-fit items-center gap-2 rounded-full border border-[#D99A70]/25 bg-[#A6532E]/10 px-4 py-2 text-xs font-bold uppercase tracking-[1.5px] text-[#D99A70] dark:border-[#A6532E]/20 dark:text-[#A6532E]"
+            >
               <Headphones size={15} />
               We're Listening
-            </span>
+            </motion.span>
 
-            <h2 className="mt-6 text-3xl font-extrabold leading-tight tracking-tight md:text-4xl lg:text-5xl">
+            <motion.h2
+              variants={fadeUp}
+              className="mt-6 text-3xl font-extrabold leading-tight tracking-tight md:text-4xl lg:text-5xl"
+            >
               We'd Love to
               <span className="block text-[#D99A70] dark:text-[#A6532E]">
                 Hear From You.
               </span>
-            </h2>
+            </motion.h2>
 
-            <p className={`mt-6 text-sm leading-8 ${mutedText} md:text-base`}>
+            <motion.p
+              variants={fadeUp}
+              className={`mt-6 text-sm leading-8 ${mutedText} md:text-base`}
+            >
               Your questions, feedback, and suggestions help us make RentZone
               better. Send us a message and tell us how we can help you.
-            </p>
+            </motion.p>
 
-            <div className="mt-9 space-y-5">
-              <div className="flex items-start gap-4">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/15 text-[#D99A70] dark:text-[#A6532E]">
-                  <CheckCircle2 size={21} />
-                </div>
+            <motion.div
+              variants={stagger(0.14, 0.05)}
+              className="mt-9 space-y-5"
+            >
+              {[
+                {
+                  icon: CheckCircle2,
+                  title: "We're Here to Help",
+                  text: "Get assistance with your questions and concerns.",
+                },
+                {
+                  icon: MessageCircle,
+                  title: "Your Feedback Matters",
+                  text: "Share your ideas and help us improve your experience.",
+                },
+                {
+                  icon: Sparkles,
+                  title: "Customer First",
+                  text: "Your satisfaction is important to us.",
+                },
+              ].map((item) => {
+                const Icon = item.icon;
 
-                <div>
-                  <h3 className="font-bold">We're Here to Help</h3>
-                  <p className={`mt-1 text-sm leading-6 ${mutedText}`}>
-                    Get assistance with your questions and concerns.
-                  </p>
-                </div>
-              </div>
+                return (
+                  <motion.div
+                    key={item.title}
+                    variants={featureItem}
+                    className="flex items-start gap-4"
+                  >
+                    <motion.div
+                      variants={popIn}
+                      whileHover={
+                        reduceMotion ? undefined : { rotate: -8, scale: 1.08 }
+                      }
+                      className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/15 text-[#D99A70] dark:text-[#A6532E]"
+                    >
+                      <Icon size={21} />
+                    </motion.div>
 
-              <div className="flex items-start gap-4">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/15 text-[#D99A70] dark:text-[#A6532E]">
-                  <MessageCircle size={21} />
-                </div>
-
-                <div>
-                  <h3 className="font-bold">Your Feedback Matters</h3>
-                  <p className={`mt-1 text-sm leading-6 ${mutedText}`}>
-                    Share your ideas and help us improve your experience.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/15 text-[#D99A70] dark:text-[#A6532E]">
-                  <Sparkles size={21} />
-                </div>
-
-                <div>
-                  <h3 className="font-bold">Customer First</h3>
-                  <p className={`mt-1 text-sm leading-6 ${mutedText}`}>
-                    Your satisfaction is important to us.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+                    <div>
+                      <h3 className="font-bold">{item.title}</h3>
+                      <p className={`mt-1 text-sm leading-6 ${mutedText}`}>
+                        {item.text}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </motion.div>
 
           {/* Contact Form */}
-          <div
+          <motion.div
             id="contact-form"
-            className="rounded-[26px] border border-[#F3DFC2]/10 bg-[#2B211B] p-6 shadow-[0_15px_50px_rgba(0,0,0,0.15)] transition-colors duration-500 dark:border-[#A6532E]/10 dark:bg-white sm:p-8 md:p-10"
+            variants={formCard}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
+            className="scroll-mt-24 rounded-[26px] border border-[#F3DFC2]/10 bg-[#2B211B] p-6 shadow-[0_15px_50px_rgba(0,0,0,0.15)] transition-colors duration-500 dark:border-[#A6532E]/10 dark:bg-white sm:p-8 md:p-10"
           >
-            <div className="mb-8">
+            <motion.div variants={formField} className="mb-8">
               <h3 className="text-2xl font-extrabold text-[#F3DFC2] dark:text-[#211A15]">
                 Send Us a Message
               </h3>
@@ -241,10 +434,13 @@ export default function ContactUsPage() {
               <p className={`mt-2 text-sm leading-6 ${mutedText}`}>
                 Fill out the form below and tell us what's on your mind.
               </p>
-            </div>
+            </motion.div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid gap-5 sm:grid-cols-2">
+              <motion.div
+                variants={formField}
+                className="grid gap-5 sm:grid-cols-2"
+              >
                 <div>
                   <label htmlFor="name" className={labelClass}>
                     Your Name *
@@ -274,9 +470,9 @@ export default function ContactUsPage() {
                     className={inputClass}
                   />
                 </div>
-              </div>
+              </motion.div>
 
-              <div>
+              <motion.div variants={formField}>
                 <label htmlFor="subject" className={labelClass}>
                   Subject *
                 </label>
@@ -289,9 +485,9 @@ export default function ContactUsPage() {
                   placeholder="What is this about?"
                   className={inputClass}
                 />
-              </div>
+              </motion.div>
 
-              <div>
+              <motion.div variants={formField}>
                 <label htmlFor="message" className={labelClass}>
                   Your Message *
                 </label>
@@ -304,60 +500,101 @@ export default function ContactUsPage() {
                   placeholder="Write your message here..."
                   className={`${inputClass} h-auto resize-none py-4`}
                 />
-              </div>
+              </motion.div>
 
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#B56D43,#914321)] px-6 py-3.5 text-sm font-bold text-[#F3DFC2] shadow-lg shadow-[#A6532E]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-                Send Message
-                <Send size={17} />
-              </button>
-
-              {submitted && (
-                <p
-                  role="status"
-                  className="rounded-xl border border-[#A6532E]/20 bg-[#A6532E]/10 p-3 text-sm text-[#D99A70] dark:text-[#A6532E]"
+              <motion.div variants={formField}>
+                <motion.button
+                  type="submit"
+                  whileHover={reduceMotion ? undefined : { y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={spring}
+                  className="group/btn inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#B56D43,#914321)] px-6 py-3.5 text-sm font-bold text-[#F3DFC2] shadow-lg shadow-[#A6532E]/20 transition-shadow duration-300 hover:shadow-xl"
                 >
-                  Form UI is ready! Connect your backend or email service to
-                  deliver messages.
-                </p>
-              )}
+                  Send Message
+                  <Send
+                    size={17}
+                    className="transition-transform duration-300 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-1"
+                  />
+                </motion.button>
+              </motion.div>
 
-              <p className={`text-center text-xs leading-6 ${softText}`}>
+              <AnimatePresence>
+                {submitted && (
+                  <motion.p
+                    role="status"
+                    initial={
+                      reduceMotion ? false : { opacity: 0, y: 10, scale: 0.97 }
+                    }
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                    className="rounded-xl border border-[#A6532E]/20 bg-[#A6532E]/10 p-3 text-sm text-[#D99A70] dark:text-[#A6532E]"
+                  >
+                    Form UI is ready! Connect your backend or email service to
+                    deliver messages.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+
+              <motion.p
+                variants={formField}
+                className={`text-center text-xs leading-6 ${softText}`}
+              >
                 Your information will be handled with care.
-              </p>
+              </motion.p>
             </form>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ================= SECTION 03: FAQ ================= */}
       <section className="bg-[#F8F4EE] py-16 transition-colors duration-500 dark:bg-[#211A15] md:py-24">
         <div className="mx-auto max-w-[900px] px-[5%]">
-          <div className="mb-12 text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#A6532E]/20 bg-[#A6532E]/5 px-4 py-2 text-xs font-bold uppercase tracking-[1.5px] text-[#A6532E]">
+          <motion.div
+            variants={stagger(0.1, 0.05)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            className="mb-12 text-center"
+          >
+            <motion.span
+              variants={fadeUp}
+              className="inline-flex items-center gap-2 rounded-full border border-[#A6532E]/20 bg-[#A6532E]/5 px-4 py-2 text-xs font-bold uppercase tracking-[1.5px] text-[#A6532E]"
+            >
               <Sparkles size={15} />
               Need Answers?
-            </span>
+            </motion.span>
 
-            <h2 className="mt-5 text-3xl font-extrabold tracking-tight md:text-4xl">
+            <motion.h2
+              variants={fadeUp}
+              className="mt-5 text-3xl font-extrabold tracking-tight md:text-4xl"
+            >
               Frequently Asked Questions
-            </h2>
+            </motion.h2>
 
-            <p className={`mt-4 text-sm leading-7 ${mutedText} md:text-base`}>
+            <motion.p
+              variants={fadeUp}
+              className={`mt-4 text-sm leading-7 ${mutedText} md:text-base`}
+            >
               Find quick answers to some of the questions you might have.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="space-y-4">
+          <motion.div
+            variants={stagger(0.1, 0.05)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
+            className="space-y-4"
+          >
             {faqs.map((faq, index) => {
               const isOpen = openFaq === index;
 
               return (
-                <div
+                <motion.div
                   key={faq.question}
-                  className="overflow-hidden rounded-2xl border border-[#A6532E]/10 bg-white transition-all duration-300 dark:border-[#F3DFC2]/10 dark:bg-[#2B211B]"
+                  variants={cardUp}
+                  className="overflow-hidden rounded-2xl border border-[#A6532E]/10 bg-white transition-colors duration-300 hover:border-[#A6532E]/30 dark:border-[#F3DFC2]/10 dark:bg-[#2B211B] dark:hover:border-[#A6532E]/40"
                 >
                   <button
                     type="button"
@@ -369,53 +606,94 @@ export default function ContactUsPage() {
                       {faq.question}
                     </span>
 
-                    <span
-                      className={`flex size-8 shrink-0 items-center justify-center rounded-full bg-[#A6532E]/10 text-[#A6532E] transition-transform duration-300 ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
+                    <motion.span
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{
+                        duration: reduceMotion ? 0 : 0.35,
+                        ease: EASE,
+                      }}
+                      className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#A6532E]/10 text-[#A6532E]"
                     >
                       <ChevronDown size={18} />
-                    </span>
+                    </motion.span>
                   </button>
 
-                  <div
-                    className={`grid transition-all duration-300 ${
-                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                    }`}
-                  >
-                    <div className="overflow-hidden">
-                      <p
-                        className={`px-5 pb-6 text-sm leading-7 ${mutedText} sm:px-6`}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                          duration: reduceMotion ? 0 : 0.35,
+                          ease: EASE,
+                        }}
+                        className="overflow-hidden"
                       >
-                        {faq.answer}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                        <p
+                          className={`px-5 pb-6 text-sm leading-7 ${mutedText} sm:px-6`}
+                        >
+                          {faq.answer}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Bottom CTA */}
-          <div className="mt-12 rounded-2xl border border-[#A6532E]/10 bg-white p-6 text-center dark:border-[#F3DFC2]/10 dark:bg-[#2B211B] sm:p-8">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-[#A6532E]/10 text-[#A6532E]">
-              <MessageCircle size={23} />
-            </div>
-
-            <h3 className="mt-5 text-xl font-bold">Still Have Questions?</h3>
-
-            <p className={`mt-2 text-sm leading-7 ${softText}`}>
-              We're always happy to help you with your rental journey.
-            </p>
-
-            <Link
-              href="#contact-form"
-              className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#A6532E] transition-colors hover:text-[#914321]"
+          <motion.div
+            variants={stagger(0.1, 0.1)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            className="mt-12 rounded-2xl border border-[#A6532E]/10 bg-white p-6 text-center dark:border-[#F3DFC2]/10 dark:bg-[#2B211B] sm:p-8"
+          >
+            <motion.div
+              variants={popIn}
+              className="mx-auto flex size-12 items-center justify-center rounded-xl bg-[#A6532E]/10 text-[#A6532E]"
             >
-              Get in Touch
-              <ArrowRight size={16} />
-            </Link>
-          </div>
+              <motion.span
+                aria-hidden="true"
+                animate={reduceMotion ? undefined : { y: [0, -4, 0] }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="inline-flex"
+              >
+                <MessageCircle size={23} />
+              </motion.span>
+            </motion.div>
+
+            <motion.h3 variants={fadeUp} className="mt-5 text-xl font-bold">
+              Still Have Questions?
+            </motion.h3>
+
+            <motion.p
+              variants={fadeUp}
+              className={`mt-2 text-sm leading-7 ${softText}`}
+            >
+              We're always happy to help you with your rental journey.
+            </motion.p>
+
+            <motion.div variants={fadeUp}>
+              <Link
+                href="#contact-form"
+                className="group/link mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#A6532E] transition-colors hover:text-[#914321]"
+              >
+                Get in Touch
+                <ArrowRight
+                  size={16}
+                  className="transition-transform duration-300 group-hover/link:translate-x-1"
+                />
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
     </main>

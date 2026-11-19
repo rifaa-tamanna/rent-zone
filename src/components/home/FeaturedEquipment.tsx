@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { ArrowRight, Heart, MapPin, Star } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -78,9 +79,37 @@ const featuredEquipment = [
   },
 ];
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: {
+    opacity: 0,
+    y: 30,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.55,
+      ease: EASE,
+    },
+  },
+};
+
 const FeaturedEquipment = () => {
   const router = useRouter();
   const { data: session, isPending } = useSession();
+
+  const shouldReduceMotion = useReducedMotion();
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
@@ -100,16 +129,51 @@ const FeaturedEquipment = () => {
   };
 
   return (
-    <section className="bg-[#17120F] py-16 text-[#F3DFC2] transition-colors duration-300 dark:bg-[#FAF7F3] dark:text-[#4B382B] sm:py-20 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-[#17120F] py-16 text-[#F3DFC2] transition-colors duration-300 dark:bg-[#FAF7F3] dark:text-[#4B382B] sm:py-20 lg:py-24">
+      {/* Decorative floating glow */}
+      <motion.div
+        aria-hidden="true"
+        animate={
+          shouldReduceMotion ? undefined : { y: [0, 24, 0], x: [0, 14, 0] }
+        }
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        className="pointer-events-none absolute -left-32 top-10 size-80 rounded-full bg-[#A6532E]/12 blur-[110px] dark:bg-[#A6532E]/8"
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
-        <div className="mb-10 flex flex-col justify-between gap-5 sm:mb-12 sm:flex-row sm:items-end">
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{
+            duration: 0.65,
+            ease: EASE,
+          }}
+          className="mb-10 flex flex-col justify-between gap-5 sm:mb-12 sm:flex-row sm:items-end"
+        >
           <div className="max-w-2xl">
             <Badge
               variant="outline"
               className="mb-4 gap-2 border-[#A6532E]/50 bg-[#A6532E]/10 px-3 py-1 text-[#D58B65] dark:border-[#A6532E]/30 dark:bg-[#A6532E]/5 dark:text-[#A6532E]"
             >
-              <Star className="size-3.5 fill-current" />
+              <motion.span
+                aria-hidden="true"
+                animate={
+                  shouldReduceMotion
+                    ? undefined
+                    : { rotate: [0, 18, -12, 0], scale: [1, 1.2, 1] }
+                }
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  repeatDelay: 1.5,
+                  ease: "easeInOut",
+                }}
+                className="inline-flex"
+              >
+                <Star className="size-3.5 fill-current" />
+              </motion.span>
               Featured Collection
             </Badge>
 
@@ -126,115 +190,195 @@ const FeaturedEquipment = () => {
             </p>
           </div>
 
-          <Button
-            variant="outline"
-            onClick={() => router.push("/equipment")}
-            className="w-fit gap-2 border-[#806650]/50 bg-transparent text-[#F3DFC2] hover:border-[#D58B65] hover:bg-[#A6532E]/10 hover:text-[#D58B65] dark:border-[#A6532E]/30 dark:text-[#4B382B] dark:hover:border-[#A6532E] dark:hover:text-[#A6532E]"
+          <motion.div
+            whileHover={shouldReduceMotion ? undefined : { y: -3 }}
+            whileTap={{ scale: 0.97 }}
           >
-            Explore All
-            <ArrowRight className="size-4" />
-          </Button>
-        </div>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/equipment")}
+              className="group/explore w-fit gap-2 border-[#806650]/50 bg-transparent text-[#F3DFC2] hover:border-[#D58B65] hover:bg-[#A6532E]/10 hover:text-[#D58B65] dark:border-[#A6532E]/30 dark:text-[#4B382B] dark:hover:border-[#A6532E] dark:hover:text-[#A6532E]"
+            >
+              Explore All
+              <ArrowRight className="size-4 transition-transform duration-300 group-hover/explore:translate-x-1" />
+            </Button>
+          </motion.div>
+        </motion.div>
 
         {/* Equipment Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {featuredEquipment.slice(0, 6).map((equipment) => {
             const isFavorite = favorites.includes(equipment.id);
 
             return (
-              <Card
+              <motion.div
                 key={equipment.id}
-                className="group gap-0 overflow-hidden rounded-2xl border-[#4B382B] bg-[#241B16] py-0 text-[#F3DFC2] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#A6532E] hover:shadow-xl dark:border-[#E9D9C9] dark:bg-white dark:text-[#4B382B] dark:hover:border-[#A6532E]/50"
+                variants={cardVariants}
+                whileHover={shouldReduceMotion ? undefined : { y: -6 }}
+                transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                className="min-w-0"
               >
-                {/* Equipment Image */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-[#30241D] dark:bg-[#F3EAE0]">
-                  <img
-                    src={equipment.image}
-                    alt={equipment.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-
-                  {/* Favorite Button */}
-                  <Button
-                    size="icon"
-                    variant="secondary"
-                    aria-label={
-                      isFavorite ? "Remove from favorites" : "Add to favorites"
-                    }
-                    onClick={() => toggleFavorite(equipment.id)}
-                    className="absolute left-4 top-4 size-10 rounded-full bg-[#F3DFC2]/95 text-[#4B382B] shadow-md backdrop-blur-sm hover:bg-white dark:bg-white/95 dark:text-[#4B382B] dark:hover:bg-white"
-                  >
-                    <Heart
-                      className={`size-5 transition-colors ${
-                        isFavorite
-                          ? "fill-red-500 text-red-500"
-                          : "text-[#4B382B]"
-                      }`}
+                <Card className="group gap-0 overflow-hidden rounded-2xl border-[#4B382B] bg-[#241B16] py-0 text-[#F3DFC2] shadow-sm transition-[border-color,box-shadow] duration-300 hover:border-[#A6532E] hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] dark:border-[#E9D9C9] dark:bg-white dark:text-[#4B382B] dark:hover:border-[#A6532E]/50">
+                  {/* Equipment Image */}
+                  <div className="relative aspect-[16/10] overflow-hidden bg-[#30241D] dark:bg-[#F3EAE0]">
+                    <motion.img
+                      src={equipment.image}
+                      alt={equipment.name}
+                      loading="lazy"
+                      whileHover={
+                        shouldReduceMotion ? undefined : { scale: 1.07 }
+                      }
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                      className="h-full w-full object-cover"
                     />
-                  </Button>
 
-                  {/* Availability */}
-                  <Badge className="absolute right-4 top-4 gap-1.5 rounded-full border-0 bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-emerald-500">
-                    <span className="size-2 rounded-full bg-white" />
-                    Available
-                  </Badge>
-                </div>
-
-                {/* Equipment Information */}
-                <div className="space-y-3.5 p-5 sm:p-6">
-                  <h3 className="text-xl font-bold tracking-tight transition-colors group-hover:text-[#D58B65] dark:group-hover:text-[#A6532E]">
-                    {equipment.name}
-                  </h3>
-
-                  {/* Category */}
-                  <Badge
-                    variant="outline"
-                    className="h-8 gap-2 border-[#A6532E]/30 bg-[#A6532E]/10 px-3 text-sm font-normal text-[#D8B99F] dark:text-[#806650]"
-                  >
-                    <span>📁</span>
-                    {equipment.category}
-                  </Badge>
-
-                  {/* Rating */}
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="size-4 fill-amber-400 text-amber-400" />
-                    <span className="font-semibold">{equipment.rating}</span>
-                    <span className="text-[#B9A99A] dark:text-[#806650]">
-                      ({equipment.reviews} reviews)
-                    </span>
-                  </div>
-
-                  {/* Location */}
-                  <div className="flex items-center gap-2 text-sm text-[#B9A99A] dark:text-[#806650]">
-                    <MapPin className="size-4 text-[#D58B65] dark:text-[#A6532E]" />
-                    <span>{equipment.location}</span>
-                  </div>
-
-                  {/* Price and Details */}
-                  <div className="border-t border-[#4B382B] pt-4 dark:border-[#E9D9C9]">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-xl font-bold text-[#D58B65] dark:text-[#A6532E]">
-                        ৳{equipment.price.toLocaleString("en-BD")}
-                        <span className="ml-1 text-sm font-medium text-[#B9A99A] dark:text-[#806650]">
-                          / daily
-                        </span>
-                      </p>
-
+                    {/* Favorite Button */}
+                    <motion.div
+                      whileHover={
+                        shouldReduceMotion ? undefined : { scale: 1.1 }
+                      }
+                      whileTap={{ scale: 0.85 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 18,
+                      }}
+                      className="absolute left-4 top-4"
+                    >
                       <Button
-                        onClick={() => handleViewDetails(equipment.id)}
-                        disabled={isPending}
-                        className="shrink-0 gap-1.5 rounded-xl bg-[#4B382B] px-5 text-white shadow-sm hover:bg-[#634936] dark:bg-[#4B382B] dark:hover:bg-[#634936]"
+                        size="icon"
+                        variant="secondary"
+                        aria-label={
+                          isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"
+                        }
+                        aria-pressed={isFavorite}
+                        onClick={() => toggleFavorite(equipment.id)}
+                        className="size-10 rounded-full bg-[#F3DFC2]/95 text-[#4B382B] shadow-md backdrop-blur-sm hover:bg-white dark:bg-white/95 dark:text-[#4B382B] dark:hover:bg-white"
                       >
-                        View Details
-                        <ArrowRight className="size-4" />
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.span
+                            key={isFavorite ? "on" : "off"}
+                            initial={
+                              shouldReduceMotion
+                                ? false
+                                : { scale: 0.4, rotate: -20, opacity: 0 }
+                            }
+                            animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                            exit={
+                              shouldReduceMotion
+                                ? undefined
+                                : { scale: 0.4, opacity: 0 }
+                            }
+                            transition={{
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 18,
+                            }}
+                            className="inline-flex"
+                          >
+                            <Heart
+                              className={`size-5 ${
+                                isFavorite
+                                  ? "fill-red-500 text-red-500"
+                                  : "text-[#4B382B]"
+                              }`}
+                            />
+                          </motion.span>
+                        </AnimatePresence>
                       </Button>
+                    </motion.div>
+
+                    {/* Availability */}
+                    <Badge className="absolute right-4 top-4 gap-1.5 rounded-full border-0 bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-emerald-500">
+                      <motion.span
+                        aria-hidden="true"
+                        animate={
+                          shouldReduceMotion
+                            ? undefined
+                            : { scale: [1, 1.5, 1], opacity: [1, 0.6, 1] }
+                        }
+                        transition={{
+                          duration: 1.8,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="size-2 rounded-full bg-white"
+                      />
+                      Available
+                    </Badge>
+                  </div>
+
+                  {/* Equipment Information */}
+                  <div className="space-y-3.5 p-5 sm:p-6">
+                    <h3 className="text-xl font-bold tracking-tight transition-colors group-hover:text-[#D58B65] dark:group-hover:text-[#A6532E]">
+                      {equipment.name}
+                    </h3>
+
+                    {/* Category */}
+                    <Badge
+                      variant="outline"
+                      className="h-8 gap-2 border-[#A6532E]/30 bg-[#A6532E]/10 px-3 text-sm font-normal text-[#D8B99F] dark:text-[#806650]"
+                    >
+                      <span aria-hidden="true">📁</span>
+                      {equipment.category}
+                    </Badge>
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-2 text-sm">
+                      <Star className="size-4 fill-amber-400 text-amber-400" />
+                      <span className="font-semibold">{equipment.rating}</span>
+                      <span className="text-[#B9A99A] dark:text-[#806650]">
+                        ({equipment.reviews} reviews)
+                      </span>
+                    </div>
+
+                    {/* Location */}
+                    <div className="flex items-center gap-2 text-sm text-[#B9A99A] dark:text-[#806650]">
+                      <MapPin className="size-4 text-[#D58B65] dark:text-[#A6532E]" />
+                      <span>{equipment.location}</span>
+                    </div>
+
+                    {/* Price and Details */}
+                    <div className="border-t border-[#4B382B] pt-4 dark:border-[#E9D9C9]">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xl font-bold text-[#D58B65] dark:text-[#A6532E]">
+                          ৳{equipment.price.toLocaleString("en-BD")}
+                          <span className="ml-1 text-sm font-medium text-[#B9A99A] dark:text-[#806650]">
+                            / daily
+                          </span>
+                        </p>
+
+                        <motion.div
+                          whileHover={
+                            shouldReduceMotion ? undefined : { y: -2 }
+                          }
+                          whileTap={{ scale: 0.96 }}
+                        >
+                          <Button
+                            onClick={() => handleViewDetails(equipment.id)}
+                            disabled={isPending}
+                            className="shrink-0 gap-1.5 rounded-xl bg-[#4B382B] px-5 text-white shadow-sm hover:bg-[#634936] dark:bg-[#4B382B] dark:hover:bg-[#634936]"
+                          >
+                            View Details
+                            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                          </Button>
+                        </motion.div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
