@@ -43,6 +43,7 @@ const howItWorksImage =
 export default function HowItWorks() {
   return (
     <section
+      id="how-it-works"
       className="
         relative overflow-hidden
         bg-[#211A15] text-[#F3DFC2]

@@ -227,3 +227,7 @@
     color: #ffffff;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}
