@@ -119,13 +119,13 @@ export default function Navbar() {
                 Dashboard
               </Link>
 
-              <button
+              <Link href={'/'}
                 type="button"
                 onClick={handleLogout}
                 className="text-sm font-semibold text-[var(--rz-heading)] transition-colors hover:text-[var(--rz-heading-hover)]"
               >
                 Sign Out
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="flex items-center gap-3">

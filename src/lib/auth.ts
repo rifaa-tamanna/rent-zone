@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { createAuthMiddleware } from "better-auth/api";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
@@ -9,6 +10,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+
   user: {
     additionalFields: {
       role: {
@@ -19,6 +21,50 @@ export const auth = betterAuth({
       },
     },
   },
+
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/sign-up/email") {
+        const requestedRole = ctx.body?.role;
+
+        const safeRole = requestedRole === "owner" ? "owner" : "customer";
+
+        return {
+          context: {
+            ...ctx,
+            body: {
+              ...ctx.body,
+              role: safeRole,
+            },
+          },
+        };
+      }
+    }),
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user, ctx) => {
+          const requestBody = (
+            ctx as typeof ctx & {
+              body?: { role?: string };
+            }
+          ).body;
+
+          const safeRole = requestBody?.role === "owner" ? "owner" : "customer";
+
+          return {
+            data: {
+              ...user,
+              role: safeRole,
+            },
+          };
+        },
+      },
+    },
+  },
+
   database: mongodbAdapter(db, {
     client,
   }),

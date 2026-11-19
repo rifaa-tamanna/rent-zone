@@ -17,17 +17,21 @@ import {
   Zap,
   CircleX,
   CircleCheck,
+  BriefcaseBusiness,
 } from "lucide-react";
 
-export type AuthFormProps = {
-  mode: "signup" | "signin";
-  onSubmit: (formData: FormDataProps) => void | Promise<void>;
-};
+export type UserRole = "customer" | "owner";
 
 export type FormDataProps = {
   name: string;
   email: string;
   password: string;
+  role: UserRole;
+};
+
+export type AuthFormProps = {
+  mode: "signup" | "signin";
+  onSubmit: (formData: FormDataProps) => void | Promise<void>;
 };
 
 type FormFieldProps = {
@@ -74,9 +78,7 @@ function FormField({
           placeholder={placeholder}
           required={required}
           value={value}
-          onChange={
-            onChange ? (event) => onChange(event.target.value) : undefined
-          }
+          onChange={onChange ? (event) => onChange(event.target.value) : undefined}
           className={`${inputClass} ${rightElement ? "pr-12" : ""}`}
         />
 
@@ -90,25 +92,32 @@ function FormField({
   );
 }
 
+const roles = [
+  {
+    value: "customer" as const,
+    label: "Customer",
+    description: "Rent equipment",
+    icon: UserRound,
+  },
+  {
+    value: "owner" as const,
+    label: "Owner",
+    description: "List equipment",
+    icon: BriefcaseBusiness,
+  },
+];
+
 export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
   const isSignUp = mode === "signup";
 
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState<UserRole>("customer");
 
   const passwordRules = [
-    {
-      label: "At least 6 characters",
-      valid: password.length >= 6,
-    },
-    {
-      label: "One uppercase letter",
-      valid: /[A-Z]/.test(password),
-    },
-    {
-      label: "One lowercase letter",
-      valid: /[a-z]/.test(password),
-    },
+    { label: "At least 6 characters", valid: password.length >= 6 },
+    { label: "One uppercase letter", valid: /[A-Z]/.test(password) },
+    { label: "One lowercase letter", valid: /[a-z]/.test(password) },
   ];
 
   const allPasswordRulesValid = passwordRules.every((rule) => rule.valid);
@@ -122,6 +131,7 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
       password: String(formData.get("password") || ""),
+      role: selectedRole,
     };
 
     await onSubmit(values);
@@ -133,31 +143,22 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
   return (
     <main className="min-h-screen bg-background px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-[1240px]">
-        {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-          <Link
-            href="/"
-            className="transition-colors hover:text-[var(--rz-heading)]"
-          >
+          <Link href="/" className="transition-colors hover:text-[var(--rz-heading)]">
             Home
           </Link>
-
           <span>/</span>
-
           <span className="font-semibold text-[var(--rz-heading)]">
             {isSignUp ? "Sign Up" : "Sign In"}
           </span>
         </div>
 
-        {/* Main Auth Card */}
         <div className="grid overflow-hidden rounded-[26px] border border-border bg-card shadow-[0_20px_60px_rgba(60,40,25,0.09)] lg:grid-cols-[0.9fr_1.1fr]">
           {/* Left Branding Panel */}
           <section className="relative flex flex-col justify-between overflow-hidden bg-[#2b211b] p-7 text-white sm:p-10">
             <div className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full border border-white/10" />
-
             <div className="pointer-events-none absolute -bottom-32 -left-20 size-80 rounded-full bg-[#A6532E]/20 blur-3xl" />
 
-            {/* Logo */}
             <div className="relative z-10">
               <Link href="/" className="inline-flex items-center gap-3">
                 <span className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#B56D43] to-[#914321] text-[#F3DFC2] shadow-lg">
@@ -165,10 +166,7 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                 </span>
 
                 <span>
-                  <span className="block text-2xl font-extrabold">
-                    RentZone
-                  </span>
-
+                  <span className="block text-2xl font-extrabold">RentZone</span>
                   <span className="text-[9px] font-bold tracking-[2px] text-[#c6a68d]">
                     RENT SMART. WORK BETTER.
                   </span>
@@ -176,7 +174,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
               </Link>
             </div>
 
-            {/* Branding Content */}
             <div className="relative z-10 my-12">
               <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#c58a63]/30 bg-[#a6532e]/20 px-4 py-2 text-[11px] font-bold tracking-wider text-[#edbd91]">
                 <Sparkles size={14} />
@@ -185,7 +182,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
 
               <h1 className="max-w-lg text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
                 {isSignUp ? "Find What You Need." : "Your Next Project"}
-
                 <span className="mt-1 block text-[#e49a58]">
                   {isSignUp ? "Rent With Ease." : "Starts Here."}
                 </span>
@@ -197,7 +193,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                   : "Sign in to manage your rentals, explore equipment, and continue where you left off."}
               </p>
 
-              {/* Features */}
               <div className="mt-8 space-y-3">
                 {[
                   {
@@ -223,20 +218,15 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                     <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#ed7b36] to-[#b84c25] shadow-lg">
                       {item.icon}
                     </span>
-
                     <div>
                       <h3 className="text-sm font-bold">{item.title}</h3>
-
-                      <p className="mt-1 text-xs text-white/55">
-                        {item.description}
-                      </p>
+                      <p className="mt-1 text-xs text-white/55">{item.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Bottom Stats */}
             <div className="relative z-10 grid grid-cols-3 gap-3 border-t border-white/10 pt-6">
               {[
                 { value: "Easy", label: "BOOKING" },
@@ -247,10 +237,7 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                   key={item.label}
                   className="rounded-xl border border-white/10 bg-white/[0.05] px-2 py-4 text-center"
                 >
-                  <p className="text-lg font-extrabold text-[#e49a58]">
-                    {item.value}
-                  </p>
-
+                  <p className="text-lg font-extrabold text-[#e49a58]">{item.value}</p>
                   <p className="mt-1 text-[9px] font-semibold tracking-wider text-white/50">
                     {item.label}
                   </p>
@@ -268,7 +255,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
             }}
           >
             <div className="mx-auto w-full max-w-[410px]">
-              {/* Form Heading */}
               <div className="mb-7">
                 <div
                   className="mb-4 flex size-12 items-center justify-center rounded-xl border text-[var(--rz-heading)]"
@@ -303,14 +289,60 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                 Continue with Google
               </button>
 
+              {/* Role Selection */}
+              {isSignUp && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold text-muted-foreground">
+                    SELECT YOUR ACCOUNT TYPE
+                  </p>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {roles.map((role) => {
+                      const Icon = role.icon;
+                      const isSelected = selectedRole === role.value;
+
+                      return (
+                        <button
+                          key={role.value}
+                          type="button"
+                          onClick={() => setSelectedRole(role.value)}
+                          aria-pressed={isSelected}
+                          className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center transition-all ${
+                            isSelected
+                              ? "border-[#A6532E] bg-[#A6532E]/10 text-[var(--rz-heading)] ring-2 ring-[#A6532E]/10"
+                              : "border-border bg-card text-muted-foreground hover:border-[#A6532E]/50"
+                          }`}
+                        >
+                          <Icon size={19} />
+                          <span className="text-xs font-bold">{role.label}</span>
+                          <span className="text-[9px] leading-tight opacity-70">
+                            {role.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      title="Admin accounts are created by the system administrator"
+                      className="flex min-w-0 cursor-not-allowed flex-col items-center justify-center gap-2 rounded-xl border border-border bg-muted/50 px-2 py-3 text-center text-muted-foreground/60 opacity-70"
+                    >
+                      <ShieldCheck size={19} />
+                      <span className="text-xs font-bold">Admin</span>
+                      <span className="text-[9px] leading-tight">Restricted</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Divider */}
               <div className="my-6 flex items-center gap-4">
                 <div className="h-px flex-1 bg-border" />
-
                 <span className="text-[10px] font-semibold tracking-wider text-muted-foreground">
                   OR CONTINUE WITH EMAIL
                 </span>
-
                 <div className="h-px flex-1 bg-border" />
               </div>
 
@@ -364,7 +396,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                   }
                 />
 
-                {/* Password Requirements */}
                 {isSignUp && (
                   <div className="space-y-2 rounded-xl border border-border bg-card/80 p-3">
                     <p className="text-xs font-semibold text-muted-foreground">
@@ -372,20 +403,11 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                     </p>
 
                     {passwordRules.map((rule) => (
-                      <div
-                        key={rule.label}
-                        className="flex items-center gap-2 text-xs"
-                      >
+                      <div key={rule.label} className="flex items-center gap-2 text-xs">
                         {rule.valid ? (
-                          <CircleCheck
-                            size={15}
-                            className="shrink-0 text-[#813D21]"
-                          />
+                          <CircleCheck size={15} className="shrink-0 text-[#813D21]" />
                         ) : (
-                          <CircleX
-                            size={15}
-                            className="shrink-0 text-red-500"
-                          />
+                          <CircleX size={15} className="shrink-0 text-red-500" />
                         )}
 
                         <span
@@ -402,7 +424,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                   </div>
                 )}
 
-                {/* Forgot Password */}
                 {!isSignUp && (
                   <div className="flex justify-end">
                     <Link
@@ -414,31 +435,25 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                   </div>
                 )}
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={isSignUp && !allPasswordRulesValid}
                   className={`${primaryButton} disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0`}
                 >
                   {isSignUp ? "Create Account" : "Sign In"}
-
                   <span className="flex size-8 items-center justify-center rounded-full bg-[#38251d] transition-transform duration-300 group-hover:translate-x-1">
                     <ArrowRight size={17} />
                   </span>
                 </button>
               </form>
 
-              {/* Sign In / Sign Up Toggle */}
               <p className="mt-6 text-center text-sm text-muted-foreground">
-                {isSignUp
-                  ? "Already have an account?"
-                  : "Don't have an account?"}{" "}
+                {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
                 <Link
                   href={isSignUp ? "/signin" : "/signup"}
                   className="font-semibold text-[var(--rz-heading)] transition-colors hover:text-[var(--rz-heading-hover)] hover:underline"
                 >
                   {isSignUp ? "Sign In" : "Create Account"}
-
                   <ArrowUpRight className="ml-0.5 inline size-3.5" />
                 </Link>
               </p>
@@ -446,7 +461,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
           </section>
         </div>
 
-        {/* Footer */}
         <p className="mt-6 text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} RentZone. All rights reserved.
         </p>
