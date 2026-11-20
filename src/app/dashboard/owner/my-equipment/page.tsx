@@ -15,10 +15,12 @@ import {
   Trash2,
   LoaderCircle,
   AlertCircle,
+  Info,
 } from "lucide-react";
 
 import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHeader";
 import { Card } from "@/components/ui/card";
+
 import {
   Dialog,
   DialogContent,
@@ -33,6 +35,7 @@ import { apiFetch } from "@/lib/api";
 type Equipment = {
   _id: string;
   name: string;
+  description: string;
   category: string;
   location: string;
   rentalPrice: {
@@ -42,8 +45,12 @@ type Equipment = {
   };
   rentalTypes: string[];
   availableQuantity: number;
+  condition: string;
+  brand: string;
+  model: string;
   image: string;
   images?: string[];
+  rentalTerms?: string[] | string;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
 };
@@ -73,10 +80,12 @@ export default function DashboardOwnerMyEquipmentPage() {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Delete confirmation state
+  // Dialog states
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(
     null,
   );
+
+  const [viewEquipment, setViewEquipment] = useState<Equipment | null>(null);
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -129,7 +138,6 @@ export default function DashboardOwnerMyEquipmentPage() {
 
       setSelectedEquipment(null);
 
-      // Refresh equipment list
       await fetchEquipment();
     } catch (error) {
       toast.error(
@@ -165,6 +173,13 @@ export default function DashboardOwnerMyEquipmentPage() {
         );
       })
       .filter(Boolean);
+  };
+
+  // Get rental terms
+  const getRentalTerms = (terms?: string[] | string) => {
+    if (!terms) return [];
+
+    return Array.isArray(terms) ? terms : [terms];
   };
 
   return (
@@ -386,9 +401,9 @@ export default function DashboardOwnerMyEquipmentPage() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          disabled
-                          title="View Details - Coming next"
-                          className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground opacity-50"
+                          onClick={() => setViewEquipment(item)}
+                          title="View Equipment Details"
+                          className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-[#A6532E]/30 hover:bg-[#A6532E]/10 hover:text-[#A6532E]"
                         >
                           <Eye className="size-4" />
                         </button>
@@ -437,7 +452,198 @@ export default function DashboardOwnerMyEquipmentPage() {
         )}
       </Card>
 
-      {/* Shadcn Delete Confirmation Dialog */}
+      {/* Equipment Details Dialog */}
+      <Dialog
+        open={viewEquipment !== null}
+        onOpenChange={(open) => {
+          if (!open) setViewEquipment(null);
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              Equipment Details
+            </DialogTitle>
+
+            <DialogDescription>
+              Complete information about your listed equipment.
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewEquipment && (
+            <div className="space-y-6">
+              {/* Equipment Image */}
+              <div className="overflow-hidden rounded-xl border border-border bg-muted">
+                <img
+                  src={viewEquipment.image}
+                  alt={viewEquipment.name}
+                  className="h-56 w-full object-cover"
+                />
+              </div>
+
+              {/* Additional Images */}
+              {viewEquipment.images && viewEquipment.images.length > 1 && (
+                <div className="grid grid-cols-3 gap-3">
+                  {viewEquipment.images
+                    .filter((image) => image !== viewEquipment.image)
+                    .map((image, index) => (
+                      <img
+                        key={`${image}-${index}`}
+                        src={image}
+                        alt={`${viewEquipment.name} ${index + 2}`}
+                        className="h-24 w-full rounded-lg border border-border object-cover"
+                      />
+                    ))}
+                </div>
+              )}
+
+              {/* Name and Status */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">
+                    {viewEquipment.name}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {viewEquipment.category}
+                  </p>
+                </div>
+
+                <span
+                  className={`rounded-full border px-3 py-1.5 text-xs font-bold capitalize ${
+                    statusStyles[viewEquipment.status] ||
+                    "border-border bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {viewEquipment.status}
+                </span>
+              </div>
+
+              {/* Description */}
+              <div>
+                <h4 className="mb-2 text-sm font-bold text-foreground">
+                  Description
+                </h4>
+
+                <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
+                  {viewEquipment.description || "No description provided."}
+                </p>
+              </div>
+
+              {/* Basic Information */}
+              <div>
+                <h4 className="mb-3 text-sm font-bold text-foreground">
+                  Basic Information
+                </h4>
+
+                <div className="grid gap-4 rounded-xl border border-border p-4 sm:grid-cols-2">
+                  {[
+                    ["Brand", viewEquipment.brand],
+                    ["Model", viewEquipment.model],
+                    ["Location", viewEquipment.location],
+                    ["Condition", viewEquipment.condition],
+                    [
+                      "Available Quantity",
+                      `${viewEquipment.availableQuantity} units`,
+                    ],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <p className="text-xs text-muted-foreground">{label}</p>
+
+                      <p className="mt-1 text-sm font-semibold text-foreground">
+                        {value || "Not provided"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rental Prices */}
+              <div>
+                <h4 className="mb-3 text-sm font-bold text-foreground">
+                  Rental Pricing
+                </h4>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {(["daily", "weekly", "monthly"] as const).map((type) => (
+                    <div
+                      key={type}
+                      className="rounded-xl border border-border bg-muted/30 p-4"
+                    >
+                      <p className="text-xs capitalize text-muted-foreground">
+                        {type}
+                      </p>
+
+                      <p className="mt-2 text-lg font-bold text-[#A6532E]">
+                        {viewEquipment.rentalPrice?.[type] !== null &&
+                        viewEquipment.rentalPrice?.[type] !== undefined
+                          ? `$${viewEquipment.rentalPrice[type]}`
+                          : "N/A"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rental Types */}
+              <div>
+                <h4 className="mb-3 text-sm font-bold text-foreground">
+                  Rental Types
+                </h4>
+
+                <div className="flex flex-wrap gap-2">
+                  {viewEquipment.rentalTypes?.length > 0 ? (
+                    viewEquipment.rentalTypes.map((type) => (
+                      <span
+                        key={type}
+                        className="rounded-lg bg-[#A6532E]/10 px-3 py-1.5 text-xs font-semibold capitalize text-[#A6532E]"
+                      >
+                        {type}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No rental types available.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Rental Terms */}
+              <div>
+                <h4 className="mb-3 text-sm font-bold text-foreground">
+                  Rental Terms
+                </h4>
+
+                {getRentalTerms(viewEquipment.rentalTerms).length > 0 ? (
+                  <ul className="list-inside list-disc space-y-2 text-sm text-muted-foreground">
+                    {getRentalTerms(viewEquipment.rentalTerms).map(
+                      (term, index) => (
+                        <li key={index}>{term}</li>
+                      ),
+                    )}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No rental terms provided.
+                  </p>
+                )}
+              </div>
+
+              {/* Created Date */}
+              <div className="flex items-center gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
+                <Info className="size-4" />
+                Added on:{" "}
+                {viewEquipment.createdAt
+                  ? new Date(viewEquipment.createdAt).toLocaleDateString()
+                  : "Not available"}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={selectedEquipment !== null}
         onOpenChange={(open) => {
