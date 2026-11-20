@@ -8,18 +8,15 @@ import {
   ArrowUpRight,
   CalendarCheck,
   CalendarDays,
-  CreditCard,
   Cog,
-  Flag,
   Heart,
   LayoutDashboard,
   LifeBuoy,
   LogOut,
   Package,
+  PackagePlus,
   ShieldCheck,
-  Star,
   Users,
-  Wallet,
   type LucideIcon,
 } from "lucide-react";
 
@@ -52,6 +49,7 @@ export interface DashboardMenuItem {
 const customerBase = "/dashboard/customer";
 const ownerBase = "/dashboard/owner";
 const adminBase = "/dashboard/admin";
+const profileUrl = "/dashboard/profile";
 
 export const menuItemsByRole: Record<DashboardRole, DashboardMenuItem[]> = {
   customer: [
@@ -62,22 +60,22 @@ export const menuItemsByRole: Record<DashboardRole, DashboardMenuItem[]> = {
       icon: LayoutDashboard,
     },
     {
-      id: "customer-bookings",
-      name: "My Bookings",
-      url: `${customerBase}#bookings`,
+      id: "customer-rentals",
+      name: "My Rentals",
+      url: `${customerBase}/my-rentals`,
       icon: CalendarDays,
     },
     {
       id: "customer-favorites",
       name: "Favorites",
-      url: `${customerBase}#favorites`,
+      url: `${customerBase}/favorites`,
       icon: Heart,
     },
     {
-      id: "customer-payments",
-      name: "Payments",
-      url: `${customerBase}#payments`,
-      icon: CreditCard,
+      id: "customer-profile",
+      name: "My Profile",
+      url: profileUrl,
+      icon: Users,
     },
   ],
 
@@ -85,32 +83,32 @@ export const menuItemsByRole: Record<DashboardRole, DashboardMenuItem[]> = {
     {
       id: "owner-overview",
       name: "Overview",
-      url: `${ownerBase}#overview`,
+      url: ownerBase,
       icon: LayoutDashboard,
     },
     {
-      id: "owner-listings",
-      name: "My Listings",
-      url: `${ownerBase}#listings`,
+      id: "owner-add-equipment",
+      name: "Add Equipment",
+      url: `${ownerBase}/add-equipment`,
+      icon: PackagePlus,
+    },
+    {
+      id: "owner-equipment",
+      name: "My Equipment",
+      url: `${ownerBase}/my-equipment`,
       icon: Package,
     },
     {
-      id: "owner-requests",
-      name: "Booking Requests",
-      url: `${ownerBase}#bookings`,
+      id: "owner-rentals",
+      name: "My Equipment Rental",
+      url: `${ownerBase}/my-rentals`,
       icon: CalendarCheck,
     },
     {
-      id: "owner-earnings",
-      name: "Earnings",
-      url: `${ownerBase}#earnings`,
-      icon: Wallet,
-    },
-    {
-      id: "owner-reviews",
-      name: "Reviews",
-      url: `${ownerBase}#reviews`,
-      icon: Star,
+      id: "owner-profile",
+      name: "My Profile",
+      url: profileUrl,
+      icon: Users,
     },
   ],
 
@@ -123,27 +121,27 @@ export const menuItemsByRole: Record<DashboardRole, DashboardMenuItem[]> = {
     },
     {
       id: "admin-users",
-      name: "Users",
-      url: `${adminBase}#users`,
+      name: "All Users",
+      url: `${adminBase}/users`,
       icon: Users,
     },
     {
-      id: "admin-listings",
-      name: "Listings",
-      url: `${adminBase}#listings`,
-      icon: ShieldCheck,
+      id: "admin-equipment",
+      name: "All Equipment",
+      url: `${adminBase}/equipment`,
+      icon: Package,
     },
     {
-      id: "admin-bookings",
-      name: "Bookings",
-      url: `${adminBase}#bookings`,
+      id: "admin-rentals",
+      name: "All Rentals",
+      url: `${adminBase}/rentals`,
       icon: CalendarDays,
     },
     {
-      id: "admin-reports",
-      name: "Reports",
-      url: `${adminBase}#reports`,
-      icon: Flag,
+      id: "admin-profile",
+      name: "My Profile",
+      url: profileUrl,
+      icon: Users,
     },
   ],
 };
