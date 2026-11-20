@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 import {
   Package,
   RefreshCw,
@@ -16,8 +19,16 @@ import {
 
 import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHeader";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 import { apiFetch } from "@/lib/api";
-import { useRouter } from "next/navigation";
 
 type Equipment = {
   _id: string;
@@ -43,6 +54,11 @@ type EquipmentResponse = {
   equipment: Equipment[];
 };
 
+type DeleteResponse = {
+  success: boolean;
+  message: string;
+};
+
 const statusStyles: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   approved: "bg-green-500/10 text-green-600 border-green-500/20",
@@ -51,12 +67,20 @@ const statusStyles: Record<string, string> = {
 
 export default function DashboardOwnerMyEquipmentPage() {
   const router = useRouter();
+
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch owner's equipment from MongoDB
+  // Delete confirmation state
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(
+    null,
+  );
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Fetch owner's equipment
   const fetchEquipment = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -80,7 +104,43 @@ export default function DashboardOwnerMyEquipmentPage() {
     fetchEquipment();
   }, [fetchEquipment]);
 
-  // Filter equipment by name or category
+  // Open delete confirmation dialog
+  const handleDeleteClick = (item: Equipment) => {
+    setSelectedEquipment(item);
+  };
+
+  // Delete equipment
+  const handleDeleteEquipment = async () => {
+    if (!selectedEquipment) return;
+
+    const equipmentId = selectedEquipment._id;
+
+    try {
+      setDeletingId(equipmentId);
+
+      const result = await apiFetch<DeleteResponse>(
+        `/api/owner/equipment/${equipmentId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      toast.success(result.message || "Equipment deleted successfully!");
+
+      setSelectedEquipment(null);
+
+      // Refresh equipment list
+      await fetchEquipment();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete equipment.",
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Filter equipment
   const filteredEquipment = equipment.filter((item) => {
     const search = searchTerm.toLowerCase();
 
@@ -346,9 +406,10 @@ export default function DashboardOwnerMyEquipmentPage() {
 
                         <button
                           type="button"
-                          disabled
-                          title="Delete - Coming next"
-                          className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground opacity-50"
+                          onClick={() => handleDeleteClick(item)}
+                          disabled={deletingId !== null}
+                          title="Delete Equipment"
+                          className="flex size-9 items-center justify-center rounded-lg border border-border text-red-500 transition-colors hover:border-red-500/30 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Trash2 className="size-4" />
                         </button>
@@ -375,6 +436,66 @@ export default function DashboardOwnerMyEquipmentPage() {
           </div>
         )}
       </Card>
+
+      {/* Shadcn Delete Confirmation Dialog */}
+      <Dialog
+        open={selectedEquipment !== null}
+        onOpenChange={(open) => {
+          if (!open && deletingId === null) {
+            setSelectedEquipment(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mb-2 flex size-12 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
+              <Trash2 className="size-6" />
+            </div>
+
+            <DialogTitle className="text-lg font-bold">
+              Delete Equipment?
+            </DialogTitle>
+
+            <DialogDescription className="leading-6">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-foreground">
+                {selectedEquipment?.name}
+              </span>
+              ? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-4 flex-col-reverse gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => setSelectedEquipment(null)}
+              disabled={deletingId !== null}
+              className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDeleteEquipment}
+              disabled={deletingId !== null}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {deletingId !== null ? (
+                <>
+                  <LoaderCircle className="size-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="size-4" />
+                  Confirm Delete
+                </>
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
