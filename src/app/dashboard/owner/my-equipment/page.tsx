@@ -17,6 +17,7 @@ import {
 import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHeader";
 import { Card } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 type Equipment = {
   _id: string;
@@ -49,6 +50,7 @@ const statusStyles: Record<string, string> = {
 };
 
 export default function DashboardOwnerMyEquipmentPage() {
+  const router = useRouter();
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -333,9 +335,11 @@ export default function DashboardOwnerMyEquipmentPage() {
 
                         <button
                           type="button"
-                          disabled
-                          title="Update - Coming next"
-                          className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground opacity-50"
+                          onClick={() =>
+                            router.push(`/dashboard/owner/edit/${item._id}`)
+                          }
+                          title="Update Equipment"
+                          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[#A6532E]/10 hover:text-[#A6532E]"
                         >
                           <Pencil className="size-4" />
                         </button>
