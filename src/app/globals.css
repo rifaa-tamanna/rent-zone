@@ -231,3 +231,81 @@
 html {
   scroll-behavior: smooth;
 }
+
+
+/* =================================
+   RENTZONE PREMIUM TOAST
+================================= */
+
+:root {
+  --rz-toast-title: #4B382B;
+  --rz-toast-description: #806650;
+
+  --rz-toast-success-bg: #FFFAF4;
+  --rz-toast-success-border: #D9A47F;
+  --rz-toast-success-accent: #A6532E;
+
+  --rz-toast-error-bg: #FFF7F5;
+  --rz-toast-error-border: #E5B8AE;
+  --rz-toast-error-accent: #A64B3F;
+}
+
+.dark {
+  --rz-toast-title: #F3DFC2;
+  --rz-toast-description: #C8B9AA;
+
+  --rz-toast-success-bg: #211A15;
+  --rz-toast-success-border: #8C5538;
+  --rz-toast-success-accent: #D18A61;
+
+  --rz-toast-error-bg: #261B19;
+  --rz-toast-error-border: #8A4C43;
+  --rz-toast-error-accent: #DA8B7F;
+}
+
+/* Common Toast */
+.toaster [data-sonner-toast] {
+  border-radius: 14px !important;
+  padding: 15px 16px !important;
+  box-shadow: 0 8px 28px rgba(75, 56, 43, 0.12) !important;
+  font-family: var(--font-sans), sans-serif !important;
+}
+
+/* Success */
+.toaster [data-sonner-toast][data-type="success"] {
+  background: var(--rz-toast-success-bg) !important;
+  border: 1px solid var(--rz-toast-success-border) !important;
+  border-left: 4px solid var(--rz-toast-success-accent) !important;
+  color: var(--rz-toast-title) !important;
+}
+
+/* Error */
+.toaster [data-sonner-toast][data-type="error"] {
+  background: var(--rz-toast-error-bg) !important;
+  border: 1px solid var(--rz-toast-error-border) !important;
+  border-left: 4px solid var(--rz-toast-error-accent) !important;
+  color: var(--rz-toast-title) !important;
+}
+
+/* Toast Title */
+.toaster [data-sonner-toast] [data-title] {
+  color: var(--rz-toast-title) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+/* Toast Description */
+.toaster [data-sonner-toast] [data-description] {
+  color: var(--rz-toast-description) !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+}
+
+/* Icons */
+.toaster [data-sonner-toast][data-type="success"] [data-icon] {
+  color: var(--rz-toast-success-accent) !important;
+}
+
+.toaster [data-sonner-toast][data-type="error"] [data-icon] {
+  color: var(--rz-toast-error-accent) !important;
+}

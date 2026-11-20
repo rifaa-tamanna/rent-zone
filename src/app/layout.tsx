@@ -6,6 +6,7 @@ import Navbar from "@/components/shared/Navbar";
 import { ThemeProvider } from "next-themes";
 import Footer from "@/components/shared/Footer";
 import BackToTop from "@/components/shared/BackToTop";
+import { Toaster } from "@/components/ui/sonner";
 
 const schibstedGrotesk = Schibsted_Grotesk({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
           <Footer />
           <BackToTop />
         </ThemeProvider>
+        <Toaster position="top-right" closeButton />
       </body>
     </html>
   );
