@@ -1,11 +1,376 @@
-import React from 'react';
+"use client";
 
-const DashboardOwnerMyEquipmentPage = () => {
-    return (
-        <div>
-            
-        </div>
-    );
+import { useCallback, useEffect, useState } from "react";
+import {
+  Package,
+  RefreshCw,
+  Search,
+  MapPin,
+  Boxes,
+  Eye,
+  Pencil,
+  Trash2,
+  LoaderCircle,
+  AlertCircle,
+} from "lucide-react";
+
+import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHeader";
+import { Card } from "@/components/ui/card";
+import { apiFetch } from "@/lib/api";
+
+type Equipment = {
+  _id: string;
+  name: string;
+  category: string;
+  location: string;
+  rentalPrice: {
+    daily: number | null;
+    weekly: number | null;
+    monthly: number | null;
+  };
+  rentalTypes: string[];
+  availableQuantity: number;
+  image: string;
+  images?: string[];
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
 };
 
-export default DashboardOwnerMyEquipmentPage;
+type EquipmentResponse = {
+  success: boolean;
+  message: string;
+  equipment: Equipment[];
+};
+
+const statusStyles: Record<string, string> = {
+  pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  approved: "bg-green-500/10 text-green-600 border-green-500/20",
+  rejected: "bg-red-500/10 text-red-600 border-red-500/20",
+};
+
+export default function DashboardOwnerMyEquipmentPage() {
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Fetch owner's equipment from MongoDB
+  const fetchEquipment = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const result = await apiFetch<EquipmentResponse>("/api/owner/equipment");
+
+      setEquipment(result.equipment || []);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load your equipment.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEquipment();
+  }, [fetchEquipment]);
+
+  // Filter equipment by name or category
+  const filteredEquipment = equipment.filter((item) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      item.name.toLowerCase().includes(search) ||
+      item.category.toLowerCase().includes(search)
+    );
+  });
+
+  // Get rental price information
+  const getRentalPrices = (item: Equipment) => {
+    return item.rentalTypes
+      .map((type) => {
+        const price = item.rentalPrice[type as keyof Equipment["rentalPrice"]];
+
+        if (price === null || price === undefined) return null;
+
+        return (
+          <span key={type} className="block capitalize">
+            ${price} / {type}
+          </span>
+        );
+      })
+      .filter(Boolean);
+  };
+
+  return (
+    <div className="space-y-8">
+      <DashboardPageHeader
+        eyebrow="Owner Dashboard"
+        description="Manage and monitor all the equipment you have listed for rent."
+      />
+
+      {/* Page Overview */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="flex items-center gap-4 border-border bg-card p-5 shadow-sm">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/10 text-[#A6532E]">
+            <Package className="size-6" />
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Total Equipment</p>
+            <h3 className="mt-1 text-2xl font-bold text-foreground">
+              {equipment.length}
+            </h3>
+          </div>
+        </Card>
+
+        <Card className="flex items-center gap-4 border-border bg-card p-5 shadow-sm">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+            <Boxes className="size-6" />
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Pending Approval</p>
+            <h3 className="mt-1 text-2xl font-bold text-foreground">
+              {equipment.filter((item) => item.status === "pending").length}
+            </h3>
+          </div>
+        </Card>
+      </div>
+
+      {/* Equipment Table */}
+      <Card className="overflow-hidden border-border bg-card shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">My Equipment</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              View and manage your listed equipment.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search equipment..."
+                className="w-full rounded-xl border border-input bg-background py-2.5 pl-9 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[#A6532E] focus:ring-2 focus:ring-[#A6532E]/20 sm:w-56"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={fetchEquipment}
+              disabled={isLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-[#A6532E] hover:bg-[#A6532E]/5 disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`size-4 ${isLoading ? "animate-spin" : ""}`}
+              />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <LoaderCircle className="size-8 animate-spin text-[#A6532E]" />
+            <p className="text-sm text-muted-foreground">
+              Loading your equipment...
+            </p>
+          </div>
+        ) : error ? (
+          /* Error State */
+          <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
+            <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+              <AlertCircle className="size-6" />
+            </div>
+
+            <h3 className="font-bold text-foreground">
+              Unable to load equipment
+            </h3>
+
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              {error}
+            </p>
+
+            <button
+              type="button"
+              onClick={fetchEquipment}
+              className="mt-5 rounded-xl bg-gradient-to-r from-[#A6532E] to-[#844225] px-5 py-2.5 text-sm font-bold text-[#F3DFC2] transition-all hover:-translate-y-0.5"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredEquipment.length === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
+            <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-[#A6532E]/10 text-[#A6532E]">
+              <Package className="size-8" />
+            </div>
+
+            <h3 className="text-lg font-bold text-foreground">
+              {searchTerm ? "No equipment found" : "No equipment added yet"}
+            </h3>
+
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              {searchTerm
+                ? "Try searching with a different equipment name or category."
+                : "Your listed equipment will appear here after you add them."}
+            </p>
+          </div>
+        ) : (
+          /* Equipment Table */
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[850px] text-left">
+              <thead>
+                <tr className="border-b border-border bg-muted/40">
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Equipment
+                  </th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Category
+                  </th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Rental Price
+                  </th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Quantity
+                  </th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredEquipment.map((item) => (
+                  <tr
+                    key={item._id}
+                    className="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
+                  >
+                    {/* Equipment Name */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="size-12 shrink-0 rounded-xl border border-border bg-muted object-cover"
+                        />
+
+                        <div className="min-w-0">
+                          <p className="max-w-[180px] truncate text-sm font-bold text-foreground">
+                            {item.name}
+                          </p>
+
+                          <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="size-3" />
+                            <span className="max-w-[150px] truncate">
+                              {item.location}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Category */}
+                    <td className="px-5 py-4">
+                      <span className="rounded-lg bg-muted px-3 py-1.5 text-xs font-semibold text-foreground">
+                        {item.category}
+                      </span>
+                    </td>
+
+                    {/* Rental Price */}
+                    <td className="px-5 py-4">
+                      <div className="space-y-1 text-xs font-semibold text-foreground">
+                        {getRentalPrices(item)}
+                      </div>
+                    </td>
+
+                    {/* Available Quantity */}
+                    <td className="px-5 py-4">
+                      <span className="text-sm font-semibold text-foreground">
+                        {item.availableQuantity}
+                      </span>
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        units
+                      </span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-5 py-4">
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-bold capitalize ${
+                          statusStyles[item.status] ||
+                          "border-border bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled
+                          title="View Details - Coming next"
+                          className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground opacity-50"
+                        >
+                          <Eye className="size-4" />
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled
+                          title="Update - Coming next"
+                          className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground opacity-50"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled
+                          title="Delete - Coming next"
+                          className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground opacity-50"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="border-t border-border px-5 py-4">
+              <p className="text-xs text-muted-foreground">
+                Showing{" "}
+                <span className="font-bold text-foreground">
+                  {filteredEquipment.length}
+                </span>{" "}
+                of{" "}
+                <span className="font-bold text-foreground">
+                  {equipment.length}
+                </span>{" "}
+                equipment items
+              </p>
+            </div>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
