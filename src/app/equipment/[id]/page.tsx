@@ -106,9 +106,9 @@ export default function EquipmentDetailsPage() {
   const fetchEquipmentDetails = useCallback(async () => {
     try {
       setIsLoading(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const res = await fetch(`${apiUrl.replace(/\/+$/, "")}/api/equipment/${params.id}`);
-      const data = await res.json();
+      const data = await apiFetch<{ success: boolean; equipment: EquipmentDetail }>(
+        `/api/equipment/${params.id}`
+      );
 
       if (data?.success && data?.equipment) {
         setEquipment(data.equipment);

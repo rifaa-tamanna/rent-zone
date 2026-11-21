@@ -2,6 +2,7 @@ export interface RentalPrice {
   daily?: number | null;
   weekly?: number | null;
   monthly?: number | null;
+  [key: string]: number | null | undefined;
 }
 
 export interface EquipmentItem {
@@ -27,6 +28,7 @@ export interface EquipmentItem {
   updatedAt?: string;
 }
 
+export type Equipment = EquipmentItem;
 export type EquipmentDetail = EquipmentItem;
 
 export interface EquipmentPagination {
@@ -37,4 +39,3 @@ export interface EquipmentPagination {
   hasNextPage?: boolean;
   hasPrevPage?: boolean;
 }
-

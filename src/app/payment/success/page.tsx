@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, ArrowRight, Calendar, Package, Receipt, LayoutDashboard } from "lucide-react";
+import { CheckCircle2, LayoutDashboard } from "lucide-react";
 import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export default function PaymentSuccessPage() {

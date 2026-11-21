@@ -9,7 +9,10 @@ const client = new MongoClient(process.env.BETTER_AUTH_DB_URI as string);
 const db = client.db("rent-zone");
 
 export const auth = betterAuth({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined),
 
   emailAndPassword: {
     enabled: true,

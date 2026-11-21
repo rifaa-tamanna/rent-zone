@@ -130,7 +130,7 @@ export default function DashboardProfilePage() {
                 <p className="text-xs text-muted-foreground">{profile.email}</p>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(166,83,46,0.25)] bg-[rgba(166,83,46,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--rz-heading)]">
                   <ShieldCheck className="size-3" />
-                  {profile.role || (session?.user as any)?.role || "Customer"} Account
+                  {profile.role || (session?.user as { role?: string } | undefined)?.role || "Customer"} Account
                 </span>
               </div>
             </div>

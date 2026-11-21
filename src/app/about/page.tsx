@@ -522,16 +522,7 @@ export default function AboutUsPage() {
                   variants={benefitCard}
                   whileHover={reduceMotion ? undefined : { y: -8 }}
                   transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                  className="
-                    group rounded-2xl border border-[#A6532E]/10
-                    bg-[#FDFBF8] p-6
-                    transition-[border-color,box-shadow] duration-300
-                    hover:border-[#A6532E]/30
-                    hover:shadow-[0_15px_40px_rgba(166,83,46,0.10)]
-                    dark:border-[#F3DFC2]/10
-                    dark:bg-[#211A15]
-                    dark:hover:border-[#A6532E]/50
-                  "
+                  className="group rounded-2xl border border-[#A6532E]/10 bg-[#FDFBF8] p-6 transition-[border-color,box-shadow] duration-300 hover:border-[#A6532E]/30 hover:shadow-[0_15px_40px_rgba(166,83,46,0.10)] dark:border-[#F3DFC2]/10 dark:bg-[#211A15] dark:hover:border-[#A6532E]/50"
                 >
                   <motion.div
                     whileHover={

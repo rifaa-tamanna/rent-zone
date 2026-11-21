@@ -1,11 +1,5 @@
-import React from 'react';
+import { redirect } from "next/navigation";
 
-const DashboardOwnerEarningsPage = () => {
-    return (
-        <div>
-            
-        </div>
-    );
-};
-
-export default DashboardOwnerEarningsPage;
+export default function DashboardOwnerEarningsPage() {
+  redirect("/dashboard/owner");
+}

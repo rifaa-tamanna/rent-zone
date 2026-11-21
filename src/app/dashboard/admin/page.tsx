@@ -410,11 +410,13 @@ export default function AdminOverviewPage() {
                     </p>
                     <p className="text-[11px] text-muted-foreground">
                       <span className="capitalize">{rental.bookingStatus || "Confirmed"}</span> •{" "}
-                      {new Date(rental.createdAt || Date.now()).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {rental.createdAt
+                        ? new Date(rental.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "Recent"}
                     </p>
                   </div>
                 </div>

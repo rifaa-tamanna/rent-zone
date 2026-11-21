@@ -5,15 +5,20 @@ export type BookingStatus =
   | "completed"
   | "cancelled";
 
-export type PaymentStatus = "pending" | "paid" | "succeeded" | "failed";
+export type PaymentStatus =
+  | "pending"
+  | "paid"
+  | "succeeded"
+  | "failed"
+  | "unpaid";
 
 export interface BookingItem {
   _id: string;
   equipmentId: string;
-  equipmentName?: string;
+  equipmentName: string;
   equipmentImage?: string;
   equipmentCategory?: string;
-  customerId: string;
+  customerId?: string;
   customerName?: string;
   customerEmail?: string;
   customerPhone?: string;
@@ -22,12 +27,12 @@ export interface BookingItem {
   ownerId?: string;
   ownerName?: string;
   ownerEmail?: string;
-  rentalType: string;
+  rentalType?: string;
   rentalDuration?: string;
-  totalDays: number;
+  totalDays?: number;
   startDate: string;
   endDate: string;
-  requiredQuantity: number;
+  requiredQuantity?: number;
   totalAmount: number;
   paymentStatus: PaymentStatus | string;
   bookingStatus: BookingStatus | string;
@@ -37,4 +42,5 @@ export interface BookingItem {
 }
 
 export type RentalItem = BookingItem;
-
+export type RentalBooking = BookingItem;
+export type OwnerRentalRecord = BookingItem;

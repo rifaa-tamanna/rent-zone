@@ -237,7 +237,7 @@ export default function ContactUsPage() {
               variants={fadeUp}
               className="mt-6 text-4xl font-extrabold leading-tight tracking-tight md:text-5xl lg:text-6xl"
             >
-              Let's Start a
+              Let&apos;s Start a
               <span className="block text-[#A6532E]">Conversation.</span>
             </motion.h1>
 
@@ -246,7 +246,7 @@ export default function ContactUsPage() {
               className={`mx-auto mt-6 max-w-2xl text-sm leading-8 ${mutedText} md:text-base`}
             >
               Have a question, need assistance, or want to know more about
-              RentZone? We're here to help. Reach out to us and let's make your
+              RentZone? We&apos;re here to help. Reach out to us and let&apos;s make your
               rental experience better.
             </motion.p>
 
@@ -345,14 +345,14 @@ export default function ContactUsPage() {
               className="inline-flex w-fit items-center gap-2 rounded-full border border-[#D99A70]/25 bg-[#A6532E]/10 px-4 py-2 text-xs font-bold uppercase tracking-[1.5px] text-[#D99A70] dark:border-[#A6532E]/20 dark:text-[#A6532E]"
             >
               <Headphones size={15} />
-              We're Listening
+              We&apos;re Listening
             </motion.span>
 
             <motion.h2
               variants={fadeUp}
               className="mt-6 text-3xl font-extrabold leading-tight tracking-tight md:text-4xl lg:text-5xl"
             >
-              We'd Love to
+              We&apos;d Love to
               <span className="block text-[#D99A70] dark:text-[#A6532E]">
                 Hear From You.
               </span>
@@ -432,7 +432,7 @@ export default function ContactUsPage() {
               </h3>
 
               <p className={`mt-2 text-sm leading-6 ${mutedText}`}>
-                Fill out the form below and tell us what's on your mind.
+                Fill out the form below and tell us what&apos;s on your mind.
               </p>
             </motion.div>
 
@@ -678,7 +678,7 @@ export default function ContactUsPage() {
               variants={fadeUp}
               className={`mt-2 text-sm leading-7 ${softText}`}
             >
-              We're always happy to help you with your rental journey.
+              We&apos;re always happy to help you with your rental journey.
             </motion.p>
 
             <motion.div variants={fadeUp}>

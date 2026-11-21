@@ -139,8 +139,8 @@ export default function DashboardOwnerMyEquipmentPage() {
   // Get rental price information
   const getRentalPrices = (item: Equipment) => {
     return item.rentalTypes
-      .map((type) => {
-        const price = item.rentalPrice[type as keyof Equipment["rentalPrice"]];
+      .map((type: string) => {
+        const price = item.rentalPrice[type];
 
         if (price === null || price === undefined) return null;
 
@@ -463,8 +463,8 @@ export default function DashboardOwnerMyEquipmentPage() {
               {viewEquipment.images && viewEquipment.images.length > 1 && (
                 <div className="grid grid-cols-3 gap-3">
                   {viewEquipment.images
-                    .filter((image) => image !== viewEquipment.image)
-                    .map((image, index) => (
+                    .filter((image: string) => image !== viewEquipment.image)
+                    .map((image: string, index: number) => (
                       <img
                         key={`${image}-${index}`}
                         src={image}
@@ -570,8 +570,8 @@ export default function DashboardOwnerMyEquipmentPage() {
                 </h4>
 
                 <div className="flex flex-wrap gap-2">
-                  {viewEquipment.rentalTypes?.length > 0 ? (
-                    viewEquipment.rentalTypes.map((type) => (
+                  {(viewEquipment.rentalTypes?.length ?? 0) > 0 ? (
+                    viewEquipment.rentalTypes.map((type: string) => (
                       <span
                         key={type}
                         className="rounded-lg bg-[#A6532E]/10 px-3 py-1.5 text-xs font-semibold capitalize text-[#A6532E]"

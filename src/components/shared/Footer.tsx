@@ -167,12 +167,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="
-        relative overflow-hidden
-        bg-[#211A15] text-[#F3DFC2]
-        transition-colors duration-500
-        dark:bg-[#F8F4EE] dark:text-[#2B211B]
-      "
+      className="relative z-30 overflow-hidden bg-[#211A15] text-[#F3DFC2] transition-colors duration-500 dark:bg-[#F8F4EE] dark:text-[#2B211B]"
     >
       {/* Decorative floating glow */}
       <motion.div
@@ -203,14 +198,7 @@ export default function Footer() {
                   reduceMotion ? undefined : { rotate: -12, scale: 1.05 }
                 }
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                className="
-                  flex size-[41px] items-center justify-center
-                  rounded-[13px]
-                  bg-[linear-gradient(135deg,#B56D43,#914321)]
-                  text-[#F3DFC2]
-                  shadow-[0_4px_12px_rgba(116,61,33,0.18)]
-                  md:size-[45px]
-                "
+                className="flex size-[41px] items-center justify-center rounded-[13px] bg-[linear-gradient(135deg,#B56D43,#914321)] text-[#F3DFC2] shadow-[0_4px_12px_rgba(116,61,33,0.18)] md:size-[45px]"
               >
                 <motion.span
                   aria-hidden="true"
@@ -261,22 +249,7 @@ export default function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="
-                        flex size-10 items-center justify-center
-                        rounded-xl
-                        border border-[#F3DFC2]/15
-                        bg-[#F3DFC2]/5 text-[#D8C6B3]
-                        transition-colors duration-300
-                        hover:border-[#A6532E]
-                        hover:bg-[#A6532E]
-                        hover:text-white
-                        dark:border-[#2B211B]/15
-                        dark:bg-[#2B211B]/5
-                        dark:text-[#665548]
-                        dark:hover:border-[#A6532E]
-                        dark:hover:bg-[#A6532E]
-                        dark:hover:text-white
-                      "
+                      className="flex size-10 items-center justify-center rounded-xl border border-[#F3DFC2]/15 bg-[#F3DFC2]/5 text-[#D8C6B3] transition-colors duration-300 hover:border-[#A6532E] hover:bg-[#A6532E] hover:text-white dark:border-[#2B211B]/15 dark:bg-[#2B211B]/5 dark:text-[#665548] dark:hover:border-[#A6532E] dark:hover:bg-[#A6532E] dark:hover:text-white"
                     >
                       <Icon size={18} />
                     </Link>
@@ -297,23 +270,11 @@ export default function Footer() {
                 <motion.li key={link.label} variants={listItem}>
                   <Link
                     href={link.href}
-                    className="
-                      group inline-flex items-center gap-1.5
-                      text-sm text-[#C8B9AA]
-                      transition-colors duration-300
-                      hover:text-[#D99A70]
-                      dark:text-[#74665B]
-                      dark:hover:text-[#A6532E]
-                    "
+                    className="group inline-flex items-center gap-1.5 text-sm text-[#C8B9AA] transition-colors duration-300 hover:text-[#D99A70] dark:text-[#74665B] dark:hover:text-[#A6532E]"
                   >
                     <ArrowUpRight
                       size={14}
-                      className="
-                        text-[#A6532E] opacity-0
-                        transition-all duration-300
-                        group-hover:translate-x-0.5
-                        group-hover:opacity-100
-                      "
+                      className="text-[#A6532E] opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100"
                     />
                     {link.label}
                   </Link>
@@ -333,23 +294,11 @@ export default function Footer() {
                 <motion.li key={link.label} variants={listItem}>
                   <Link
                     href={link.href}
-                    className="
-                      group inline-flex items-center gap-1.5
-                      text-sm text-[#C8B9AA]
-                      transition-colors duration-300
-                      hover:text-[#D99A70]
-                      dark:text-[#74665B]
-                      dark:hover:text-[#A6532E]
-                    "
+                    className="group inline-flex items-center gap-1.5 text-sm text-[#C8B9AA] transition-colors duration-300 hover:text-[#D99A70] dark:text-[#74665B] dark:hover:text-[#A6532E]"
                   >
                     <ArrowUpRight
                       size={14}
-                      className="
-                        text-[#A6532E] opacity-0
-                        transition-all duration-300
-                        group-hover:translate-x-0.5
-                        group-hover:opacity-100
-                      "
+                      className="text-[#A6532E] opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100"
                     />
                     {link.label}
                   </Link>
@@ -365,7 +314,7 @@ export default function Footer() {
             </h3>
 
             <p className="mb-5 text-sm leading-6 text-[#C8B9AA] dark:text-[#74665B]">
-              Have questions or need assistance? We'd love to hear from you.
+              Have questions or need assistance? We&apos;d love to hear from you.
             </p>
 
             <motion.div variants={columnContainer} className="space-y-5">
@@ -377,12 +326,7 @@ export default function Footer() {
                       reduceMotion ? undefined : { rotate: -8, scale: 1.08 }
                     }
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className="
-                      flex size-10 shrink-0 items-center justify-center
-                      rounded-xl bg-[#A6532E]/20 text-[#D99A70]
-                      transition-colors
-                      group-hover:bg-[#A6532E] group-hover:text-white
-                    "
+                    className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/20 text-[#D99A70] transition-colors group-hover:bg-[#A6532E] group-hover:text-white"
                   >
                     <Mail size={18} />
                   </motion.div>
@@ -406,12 +350,7 @@ export default function Footer() {
                       reduceMotion ? undefined : { rotate: -8, scale: 1.08 }
                     }
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className="
-                      flex size-10 shrink-0 items-center justify-center
-                      rounded-xl bg-[#A6532E]/20 text-[#D99A70]
-                      transition-colors
-                      group-hover:bg-[#A6532E] group-hover:text-white
-                    "
+                    className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/20 text-[#D99A70] transition-colors group-hover:bg-[#A6532E] group-hover:text-white"
                   >
                     <Phone size={18} />
                   </motion.div>
@@ -433,10 +372,7 @@ export default function Footer() {
                 className="flex items-center gap-3"
               >
                 <div
-                  className="
-                    flex size-10 shrink-0 items-center justify-center
-                    rounded-xl bg-[#A6532E]/20 text-[#D99A70]
-                  "
+                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#A6532E]/20 text-[#D99A70]"
                 >
                   <MapPin size={18} />
                 </div>
@@ -460,15 +396,7 @@ export default function Footer() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
-          className="
-            my-10 flex flex-col items-start justify-between gap-5
-            rounded-2xl border border-[#F3DFC2]/10
-            bg-[#F3DFC2]/5 p-5
-            sm:flex-row sm:items-center
-            md:my-14 md:p-7
-            dark:border-[#2B211B]/10
-            dark:bg-[#2B211B]/5
-          "
+          className="my-10 flex flex-col items-start justify-between gap-5 rounded-2xl border border-[#F3DFC2]/10 bg-[#F3DFC2]/5 p-5 sm:flex-row sm:items-center md:my-14 md:p-7 dark:border-[#2B211B]/10 dark:bg-[#2B211B]/5"
         >
           <motion.div variants={fadeUp}>
             <h3 className="text-lg font-bold text-[#F3DFC2] dark:text-[#2B211B] md:text-xl">
@@ -488,17 +416,7 @@ export default function Footer() {
           >
             <Link
               href="/equipment"
-              className="
-                group/btn inline-flex w-full items-center justify-center gap-2
-                rounded-xl border border-[#A6532E]
-                bg-[image:var(--rz-btn-gradient)]
-                px-5 py-3 text-sm font-bold text-[#F3DFC2]
-                shadow-lg shadow-black/10
-                transition-[background-image,box-shadow] duration-300
-                hover:bg-[image:var(--rz-btn-gradient-hover)]
-                hover:shadow-xl
-                sm:w-auto
-              "
+              className="group/btn inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#A6532E] bg-[image:var(--rz-btn-gradient)] px-5 py-3 text-sm font-bold text-[#F3DFC2] shadow-lg shadow-black/10 transition-[background-image,box-shadow] duration-300 hover:bg-[image:var(--rz-btn-gradient-hover)] hover:shadow-xl sm:w-auto"
             >
               Explore Equipment
               <ArrowRight
@@ -525,11 +443,7 @@ export default function Footer() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.5 }}
-          className="
-            flex flex-col items-center justify-between gap-4
-            py-6 text-center
-            sm:flex-row sm:text-left
-          "
+          className="flex flex-col items-center justify-between gap-4 py-6 text-center sm:flex-row sm:text-left"
         >
           <motion.p
             variants={fadeUp}
