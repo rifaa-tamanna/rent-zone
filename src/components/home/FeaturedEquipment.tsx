@@ -263,6 +263,7 @@ const FeaturedEquipment = () => {
 
         {/* Equipment Grid */}
         <motion.div
+          key={items[0]?.id || "initial"}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
