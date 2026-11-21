@@ -1,56 +1,161 @@
-# 🚜 RentZone — Equipment Rental Platform (Client)
+# RentZone – Equipment Rental Platform
 
-> **Category:** Assignment 9 - Category 003  
-> **Platform:** Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion, BetterAuth  
-> **Live Site:** [https://rent-zone.vercel.app](https://rent-zone.vercel.app) *(Replace with your live production URL)*
+RentZone is a full-stack equipment rental platform that allows users to explore equipment, manage rental listings, and connect equipment owners with customers. The platform is designed to make equipment rental easier, more accessible, and more convenient.
 
----
+## Live Website
 
-## 📌 Project Overview & Purpose
-**RentZone** is a modern equipment rental marketplace designed to bridge the gap between equipment owners and renters. The platform allows equipment owners to list heavy machinery, vehicles, photography equipment, and industrial tools for rent, while enabling customers to seamlessly search, filter, book, and securely pay through Stripe Checkout.
+- **Frontend:** https://rentt-zone.vercel.app/
+- **Backend API:** https://rent-zone-server.vercel.app/
 
-### 🌟 Key Features
-* **Role-Based Access Control (RBAC):** Distinct dashboards and routing permissions for **Customer**, **Owner**, and **Admin**.
-* **Dynamic Server-Side Search & Filter (Challenge 1):** Real-time server-side search by title or location, filtering by category, rental type (daily/weekly/monthly), and price ranges, with multi-level sorting.
-* **Framer Motion Animations:** Smooth, accessible micro-interactions across the Hero banner, featured cards, categories, and reviews.
-* **Favorites System:** Save bookmarked equipment to the database and manage them from the customer dashboard.
-* **Stripe Payment Gateway:** Integrated rental checkout calculation based on booking duration and quantity with real-time payment recording.
-* **Owner Equipment Management:** Multi-image upload to ImgBB, status tracking, item updating, and deletion.
-* **Admin Moderation & Dynamic Analytics (Challenge 3):** Platform-wide metrics, equipment approval/rejection workflows, and user role management.
-* **Dark / Light Theme Toggle:** Instant theme switching stored in local storage.
-* **Robust Error Handling:** Custom 404 page, loading skeletons, and sonner toast alerts.
+## Technologies Used
 
----
+### Frontend
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Better Auth
+- React Hot Toast / Sonner
+- Lucide React
 
-## 🛠️ Tech Stack & NPM Packages
-* **Framework:** Next.js 16 (App Router)
-* **Language:** TypeScript
-* **Styling:** Tailwind CSS v4, Lucide React, TW Animate CSS
-* **Animation:** Motion (`motion/react` & `framer-motion`)
-* **Authentication:** BetterAuth, `@better-auth/mongo-adapter`, Jose JWT
-* **UI Components:** Shadcn UI, Sonner Toaster, Next Themes
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Better Auth JWT verification
+- ImgBB API for image hosting
 
----
+## Key Features
 
-## 🔑 Environment Variables
-Create a `.env.local` file in the root directory:
-```env
-NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
-BETTER_AUTH_SECRET=your_auth_secret_key
-BETTER_AUTH_DB_URI=your_mongodb_connection_uri
-NEXT_PUBLIC_API_URL=http://localhost:5000
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+- User authentication and authorization
+- Google authentication
+- Role-based access for customers and equipment owners
+- Browse and explore equipment listings
+- Equipment listing management
+- Add new equipment with multiple image uploads
+- Edit and delete equipment listings
+- View detailed equipment information
+- Owner dashboard
+- Search and manage personal equipment listings
+- Protected routes and API endpoints
+- Responsive user interface
+
+## Owner Dashboard
+
+Equipment owners can:
+- Add new equipment listings
+- Upload equipment images
+- View their listed equipment
+- Update equipment information
+- Delete equipment listings
+- View equipment details
+
+## Authentication & Security
+
+- Better Auth for authentication
+- JWT-based API authorization
+- Protected backend routes
+- Role-based access control
+- Secure owner-specific equipment management
+
+## Installation and Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/rifaa-tamanna/rent-zone
 ```
 
----
+### 2. Frontend Setup
 
-## 🚀 Getting Started
 ```bash
-# Install dependencies
+cd rent-zone
 npm install
-
-# Run development server
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+### 3. Backend Setup
+
+Open another terminal:
+
+```bash
+cd rent-zone-server
+npm install
+index.js
+```
+
+## Environment Variables
+
+Configure the required environment variables in the respective `.env` files.
+
+**Frontend (`.env.local`)**
+
+```env
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_BETTER_AUTH_URL=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_DB_URI=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+**Backend (`.env`)**
+
+```env
+PORT=
+MONGODB_URI=
+BETTER_AUTH_BASE_URL=
+IMGBB_API_KEY=
+```
+
+Never commit your actual `.env` files or expose secret API keys.
+
+## Project Structure
+
+```text
+rent-zone/
+├── src/
+│   ├── app/
+│   ├── components/
+│   └── lib/
+├── public/
+├── package.json
+└── README.md
+
+rent-zone-server/
+├── middleware/
+├── routes/
+├── index.js
+├── package.json
+└── .env
+```
+
+## Important NPM Packages
+
+### Frontend
+- `next`
+- `react`
+- `react-dom`
+- `better-auth`
+- `mongodb`
+- `sonner`
+- `lucide-react`
+- `tailwindcss`
+- `next-themes`
+
+### Backend
+- `express`
+- `mongodb`
+- `jose`
+- `multer`
+- `dotenv`
+- `cors`
+
+## Author
+
+**rifaa-tamanna**
+
+---
+
+*RentZone – Making Equipment Rental Simple and Accessible.*
