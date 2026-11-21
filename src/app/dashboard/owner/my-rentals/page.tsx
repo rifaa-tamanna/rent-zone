@@ -19,22 +19,7 @@ import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHea
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
-
-interface OwnerRentalRecord {
-  _id: string;
-  equipmentId: string;
-  equipmentName: string;
-  equipmentImage?: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone?: string;
-  rentalDuration: string;
-  requiredQuantity: number;
-  totalAmount: number;
-  paymentStatus: string;
-  bookingStatus: string;
-  createdAt: string;
-}
+import type { OwnerRentalRecord } from "@/types/booking";
 
 const paymentStatusStyles: Record<string, string> = {
   paid: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",

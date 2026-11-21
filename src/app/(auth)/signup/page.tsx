@@ -10,13 +10,17 @@ const SignUpPage = () => {
 
   const handleSubmit = async (formData: FormDataProps) => {
     try {
-      const signupPayload = {
+      const signupPayload: Record<string, unknown> = {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
         callbackURL: "/",
       };
+
+      if (formData.image) {
+        signupPayload.image = formData.image;
+      }
 
       const { data, error } = await authClient.signUp.email(
         signupPayload as Parameters<

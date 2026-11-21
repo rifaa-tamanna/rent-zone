@@ -23,30 +23,11 @@ import {
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
+import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-interface EquipmentItem {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  location: string;
-  rentalTypes: string[];
-  rentalPrice: {
-    daily?: number | null;
-    weekly?: number | null;
-    monthly?: number | null;
-  };
-  availableQuantity: number;
-  condition: string;
-  brand: string;
-  model: string;
-  image: string;
-  status: string;
-  createdAt: string;
-}
+import type { EquipmentItem } from "@/types/equipment";
 
 const CATEGORIES = [
   "All",
@@ -206,47 +187,23 @@ export default function AllEquipmentPage() {
       params.set("page", String(page));
       params.set("limit", "9");
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const res = await fetch(`${apiUrl.replace(/\/+$/, "")}/api/equipment?${params.toString()}`);
-      const data = await res.json();
+      const data = await apiFetch<{
+        success: boolean;
+        equipment: EquipmentItem[];
+        pagination?: { total: number; totalPages: number };
+      }>(`/api/equipment?${params.toString()}`);
 
-      if (data?.success && Array.isArray(data.equipment) && data.equipment.length > 0) {
+      if (data?.success && Array.isArray(data.equipment)) {
         setEquipmentList(data.equipment);
         setTotalPages(data.pagination?.totalPages || 1);
-        setTotalCount(data.pagination?.total || data.equipment.length);
+        setTotalCount(data.pagination?.total ?? data.equipment.length);
       } else {
-        // Fallback filter locally if backend returns empty or in development
-        let filtered = [...fallbackItems];
-        if (searchTerm.trim()) {
-          const s = searchTerm.toLowerCase();
-          filtered = filtered.filter((i) => i.name.toLowerCase().includes(s) || i.brand.toLowerCase().includes(s));
-        }
-        if (locationTerm.trim()) {
-          filtered = filtered.filter((i) => i.location.toLowerCase().includes(locationTerm.toLowerCase()));
-        }
-        if (selectedCategory !== "All") {
-          filtered = filtered.filter((i) => i.category.toLowerCase().includes(selectedCategory.toLowerCase()));
-        }
-        if (selectedRentalType !== "All") {
-          filtered = filtered.filter((i) => i.rentalTypes.includes(selectedRentalType.toLowerCase()));
-        }
-        if (minPrice) {
-          filtered = filtered.filter((i) => (i.rentalPrice.daily || 0) >= Number(minPrice));
-        }
-        if (maxPrice) {
-          filtered = filtered.filter((i) => (i.rentalPrice.daily || 0) <= Number(maxPrice));
-        }
-        if (sortBy === "price_asc") {
-          filtered.sort((a, b) => (a.rentalPrice.daily || 0) - (b.rentalPrice.daily || 0));
-        } else if (sortBy === "price_desc") {
-          filtered.sort((a, b) => (b.rentalPrice.daily || 0) - (a.rentalPrice.daily || 0));
-        }
-
-        setEquipmentList(filtered);
+        setEquipmentList([]);
         setTotalPages(1);
-        setTotalCount(filtered.length);
+        setTotalCount(0);
       }
     } catch {
+      // In development fallback if backend is offline
       setEquipmentList(fallbackItems);
       setTotalPages(1);
       setTotalCount(fallbackItems.length);

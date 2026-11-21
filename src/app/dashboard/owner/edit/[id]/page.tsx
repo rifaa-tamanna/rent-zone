@@ -9,23 +9,7 @@ import { toast } from "sonner";
 import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHeader";
 import { apiFetch } from "@/lib/api";
 import { EquipmentForm } from "@/app/dashboard/EquipmentForm";
-
-type Equipment = {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  location: string;
-  rentalTypes: string[];
-  rentalPrice: Record<string, number | null>;
-  availableQuantity: number;
-  condition: string;
-  brand: string;
-  model: string;
-  image: string;
-  images?: string[];
-  rentalTerms?: string[] | string;
-};
+import type { Equipment } from "@/types/equipment";
 
 type EquipmentResponse = {
   success: boolean;

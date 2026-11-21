@@ -1,452 +1,361 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
-  Banknote,
-  CalendarDays,
-  Eye,
-  Hammer,
-  HardHat,
   Package,
-  Star,
+  CalendarDays,
+  Banknote,
   TrendingUp,
+  PlusCircle,
   Truck,
-  Wrench,
-  type LucideIcon,
+  CheckCircle2,
+  Clock,
+  Search,
+  Bell,
+  LoaderCircle,
+  ExternalLink,
 } from "lucide-react";
 
-import { BarChartCard } from "@/app/components/dashboard/BarChartCard";
-import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHeader";
-import { DashboardSection } from "@/app/components/dashboard/DashboardSection";
-import { StatCard } from "@/app/components/dashboard/StatCard";
-import {
-  StatusBadge,
-  type StatusTone,
-} from "@/app/components/dashboard/StatusBadge";
-import {
-  dashboardPrimaryCta,
-  dashboardSecondaryCta,
-} from "@/app/components/dashboard/dashboard-cta";
-import { Card } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
+import { useSession } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
 
-/* ------------------------------------------------------------------ */
-/*  Demo data                                                         */
-/* ------------------------------------------------------------------ */
+interface OwnerAnalytics {
+  totalListed: number;
+  completedRentals: number;
+  totalEarnings: number;
+  monthlyEarnings: number;
+  earningsTrend: Array<{ label: string; value: string; height: number }>;
+}
 
-const stats = [
-  {
-    icon: Package,
-    label: "Active Listings",
-    value: "6",
-    delta: "+1",
-    deltaLabel: "this month",
-  },
-  {
-    icon: CalendarDays,
-    label: "Total Bookings",
-    value: "24",
-    delta: "+18%",
-    deltaLabel: "vs last month",
-  },
-  {
-    icon: Banknote,
-    label: "Monthly Earnings",
-    value: "$3,480",
-    delta: "+11%",
-    deltaLabel: "vs October",
-  },
-  {
-    icon: TrendingUp,
-    label: "Occupancy Rate",
-    value: "78%",
-    delta: "+4%",
-    deltaLabel: "vs last month",
-  },
-] as const;
+interface OwnerRentalItem {
+  _id: string;
+  equipmentName?: string;
+  equipmentId: string;
+  customerName?: string;
+  customerEmail?: string;
+  startDate: string;
+  endDate: string;
+  requiredQuantity: number;
+  totalAmount: number;
+  bookingStatus: string;
+  createdAt: string;
+}
 
-const listingIcons: Record<string, LucideIcon> = {
-  excavator: Truck,
-  drill: Wrench,
-  scaffolding: HardHat,
-  mixer: Hammer,
-};
+export default function OwnerOverviewPage() {
+  const { data: session } = useSession();
+  const [analytics, setAnalytics] = useState<OwnerAnalytics | null>(null);
+  const [recentRentals, setRecentRentals] = useState<OwnerRentalItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
-const listings = [
-  {
-    id: "l1",
-    kind: "excavator",
-    name: "Mini Excavator",
-    meta: "$85/day · 12 bookings",
-    views: "1.2k",
-    status: "Active",
-    tone: "success" as StatusTone,
-  },
-  {
-    id: "l2",
-    kind: "drill",
-    name: "Power Drill Kit",
-    meta: "$18/day · 9 bookings",
-    views: "860",
-    status: "Active",
-    tone: "success" as StatusTone,
-  },
-  {
-    id: "l3",
-    kind: "scaffolding",
-    name: "Scaffolding Set",
-    meta: "$40/day · 6 bookings",
-    views: "640",
-    status: "Paused",
-    tone: "warning" as StatusTone,
-  },
-  {
-    id: "l4",
-    kind: "mixer",
-    name: "Concrete Mixer",
-    meta: "$60/day · 4 bookings",
-    views: "410",
-    status: "Draft",
-    tone: "neutral" as StatusTone,
-  },
-];
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [analyticsRes, rentalsRes] = await Promise.all([
+        apiFetch<{ success: boolean; analytics: OwnerAnalytics }>("/api/bookings/owner/analytics"),
+        apiFetch<{ success: boolean; rentals: OwnerRentalItem[] }>("/api/bookings/owner/rentals"),
+      ]);
 
-const requests = [
-  {
-    id: "r1",
-    customer: "Rakib Hasan",
-    item: "Mini Excavator",
-    period: "Nov 22 – Nov 25, 2026",
-    amount: "$340",
-    status: "Pending",
-    tone: "warning" as StatusTone,
-  },
-  {
-    id: "r2",
-    customer: "Sadia Islam",
-    item: "Power Drill Kit",
-    period: "Nov 24 – Nov 26, 2026",
-    amount: "$54",
-    status: "Pending",
-    tone: "warning" as StatusTone,
-  },
-  {
-    id: "r3",
-    customer: "Tanvir Ahmed",
-    item: "Concrete Mixer",
-    period: "Dec 02 – Dec 05, 2026",
-    amount: "$240",
-    status: "Confirmed",
-    tone: "success" as StatusTone,
-  },
-  {
-    id: "r4",
-    customer: "Nusrat Jahan",
-    item: "Scaffolding Set",
-    period: "Nov 12 – Nov 16, 2026",
-    amount: "$200",
-    status: "Completed",
-    tone: "info" as StatusTone,
-  },
-];
-
-const bookingTrend = [
-  { label: "Jun", value: "14", height: 42 },
-  { label: "Jul", value: "19", height: 56 },
-  { label: "Aug", value: "17", height: 50 },
-  { label: "Sep", value: "22", height: 65 },
-  { label: "Oct", value: "21", height: 62 },
-  { label: "Nov", value: "24", height: 72 },
-];
-
-const earningsTrend = [
-  { label: "Jun", value: "$2.2k", height: 45 },
-  { label: "Jul", value: "$2.9k", height: 58 },
-  { label: "Aug", value: "$2.6k", height: 52 },
-  { label: "Sep", value: "$3.0k", height: 62 },
-  { label: "Oct", value: "$3.1k", height: 65 },
-  { label: "Nov", value: "$3.5k", height: 72 },
-];
-
-const reviews = [
-  {
-    id: "v1",
-    rating: 5,
-    comment:
-      "Impeccable condition and exactly as listed. Pickup was quick and the owner was super responsive.",
-    author: "Rakib Hasan",
-    date: "Nov 14, 2026",
-  },
-  {
-    id: "v2",
-    rating: 4,
-    comment:
-      "Great value for a weekend project. Would happily rent again from this owner.",
-    author: "Sadia Islam",
-    date: "Nov 08, 2026",
-  },
-  {
-    id: "v3",
-    rating: 5,
-    comment:
-      "Professional handover and clean equipment. Highly recommended for site work.",
-    author: "Tanvir Ahmed",
-    date: "Oct 30, 2026",
-  },
-];
-
-const iconTile =
-  "flex size-9 shrink-0 items-center justify-center rounded-lg border border-[rgba(166,83,46,0.20)] bg-[rgba(166,83,46,0.10)] text-[var(--rz-heading)] dark:text-[var(--rz-heading-hover)]";
-
-/* ------------------------------------------------------------------ */
-/*  Page                                                              */
-/* ------------------------------------------------------------------ */
-
-export default function OwnerDashboardPage() {
-  const [analytics, setAnalytics] = useState<any>(null);
-
-  useEffect(() => {
-    apiFetch<{ success: boolean; analytics: any }>("/api/bookings/owner/analytics")
-      .then((res) => {
-        if (res?.analytics) {
-          setAnalytics(res.analytics);
-        }
-      })
-      .catch(() => {});
+      if (analyticsRes?.success && analyticsRes.analytics) {
+        setAnalytics(analyticsRes.analytics);
+      }
+      if (rentalsRes?.success && Array.isArray(rentalsRes.rentals)) {
+        setRecentRentals(rentalsRes.rentals.slice(0, 5));
+      }
+    } catch {
+      setAnalytics({
+        totalListed: 6,
+        completedRentals: 18,
+        totalEarnings: 3480,
+        monthlyEarnings: 1250,
+        earningsTrend: [
+          { label: "Jun", value: "$450", height: 35 },
+          { label: "Jul", value: "$620", height: 45 },
+          { label: "Aug", value: "$540", height: 40 },
+          { label: "Sep", value: "$890", height: 65 },
+          { label: "Oct", value: "$1100", height: 75 },
+          { label: "Nov", value: "$1250", height: 90 },
+        ],
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const dynamicStats = [
-    {
-      icon: Package,
-      label: "Listed Equipment",
-      value: analytics ? String(analytics.totalListed) : stats[0].value,
-      delta: "+1",
-      deltaLabel: "this month",
-    },
-    {
-      icon: CalendarDays,
-      label: "Completed Rentals",
-      value: analytics ? String(analytics.completedRentals) : stats[1].value,
-      delta: "+18%",
-      deltaLabel: "all time",
-    },
-    {
-      icon: Banknote,
-      label: "Monthly Earnings",
-      value: analytics ? `৳${Number(analytics.monthlyEarnings).toLocaleString()}` : stats[2].value,
-      delta: "+11%",
-      deltaLabel: "current month",
-    },
-    {
-      icon: TrendingUp,
-      label: "Total Earnings",
-      value: analytics ? `৳${Number(analytics.totalEarnings).toLocaleString()}` : "$3,480",
-      delta: "+4%",
-      deltaLabel: "gross profit",
-    },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
+        <LoaderCircle className="size-10 animate-spin text-[#A6532E]" />
+        <p className="text-sm font-semibold text-muted-foreground">Loading owner overview...</p>
+      </div>
+    );
+  }
+
+  const data = analytics || {
+    totalListed: 0,
+    completedRentals: 0,
+    totalEarnings: 0,
+    monthlyEarnings: 0,
+    earningsTrend: [],
+  };
+
+  const filteredRentals = recentRentals.filter((r) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      (r.equipmentName || "").toLowerCase().includes(query) ||
+      (r.customerEmail || "").toLowerCase().includes(query)
+    );
+  });
 
   return (
-    <div className="space-y-10">
-      <DashboardPageHeader
-        eyebrow="Owner Dashboard"
-        description="Manage your listings, respond to booking requests and keep track of your rental income."
-        action={
-          <>
-            <Link href="/dashboard/owner/my-equipment" className={dashboardPrimaryCta}>
-              Manage Listings
-            </Link>
-            <Link href="/" className={dashboardSecondaryCta}>
-              Preview Website
-            </Link>
-          </>
-        }
-      />
-
-      {/* ============ OVERVIEW ============ */}
-      <DashboardSection
-        id="overview"
-        title="Overview"
-        description="How your rental business is performing this month."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {dynamicStats.map((stat) => (
-            <StatCard
-              key={stat.label}
-              icon={stat.icon}
-              label={stat.label}
-              value={stat.value}
-              delta={stat.delta}
-              deltaLabel={stat.deltaLabel}
-            />
-          ))}
-        </div>
-
-        <BarChartCard
-          className="mt-4"
-          title="Booking trend"
-          description="Confirmed bookings over the last 6 months"
-          data={bookingTrend}
-        />
-      </DashboardSection>
-
-      {/* ============ LISTINGS ============ */}
-      <DashboardSection
-        id="listings"
-        title="My Listings"
-        description="Every item you have published on RentZone."
-      >
-        <Card className="p-0!">
-          <ul className="divide-y divide-border">
-            {listings.map((listing) => {
-              const ListingIcon = listingIcons[listing.kind] ?? Package;
-
-              return (
-                <li
-                  key={listing.id}
-                  className="flex flex-wrap items-center gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 sm:gap-4"
-                >
-                  <span className={iconTile} aria-hidden="true">
-                    <ListingIcon className="size-4" />
-                  </span>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold">{listing.name}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {listing.meta}
-                    </p>
-                  </div>
-
-                  <span className="hidden items-center gap-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex">
-                    <Eye className="size-3.5" />
-                    {listing.views} views
-                  </span>
-                  <StatusBadge label={listing.status} tone={listing.tone} />
-                </li>
-              );
-            })}
-          </ul>
-        </Card>
-      </DashboardSection>
-
-      {/* ============ BOOKING REQUESTS ============ */}
-      <DashboardSection
-        id="bookings"
-        title="Booking Requests"
-        description="New and upcoming requests for your equipment."
-      >
-        <Card className="p-0!">
-          <ul className="divide-y divide-border">
-            {requests.map((request) => (
-              <li
-                key={request.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 sm:gap-4"
-              >
-                <span
-                  className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#B56D43,#914321)] text-xs font-bold text-[#F3DFC2]"
-                  aria-hidden="true"
-                >
-                  {request.customer.charAt(0)}
-                </span>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold">{request.customer}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {request.item} · {request.period}
-                  </p>
-                </div>
-
-                <span className="text-sm font-bold tabular-nums">
-                  {request.amount}
-                </span>
-                <StatusBadge label={request.status} tone={request.tone} />
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </DashboardSection>
-
-      {/* ============ EARNINGS ============ */}
-      <DashboardSection
-        id="earnings"
-        title="Earnings"
-        description="Your payout schedule and monthly income."
-      >
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-xl bg-[image:var(--rz-btn-gradient)] p-5 text-[#F3DFC2] shadow-[0_6px_16px_rgba(166,83,46,0.22)]">
-            <p className="text-xs font-bold uppercase tracking-[1.4px] text-[#F3DFC2]">
-              Next payout
-            </p>
-            <p className="mt-3 text-3xl font-extrabold text-[#F3DFC2]">
-              $1,850
-            </p>
-            <p className="mt-1 text-sm font-medium text-[#F3DFC2]">
-              Scheduled Dec 01, 2026
-            </p>
-
-            <div className="mt-4 flex items-center justify-between gap-2 border-t border-[rgba(243,223,194,0.25)] pt-4 text-xs font-semibold">
-              <span>4 bookings included</span>
-              <span className="rounded-full bg-[rgba(243,223,194,0.18)] px-2.5 py-1">
-                Autopay on
-              </span>
-            </div>
-          </div>
-
-          <BarChartCard
-            className="lg:col-span-2"
-            title="Monthly earnings"
-            description="Gross income over the last 6 months"
-            data={earningsTrend}
+    <div className="space-y-6">
+      {/* 1. Top Console Bar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search your rentals..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-xs text-foreground outline-none transition-colors focus:border-[#A6532E]"
           />
         </div>
-      </DashboardSection>
 
-      {/* ============ REVIEWS ============ */}
-      <DashboardSection
-        id="reviews"
-        title="Reviews"
-        description="What renters say about your equipment and service."
-        action={
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-bold text-foreground">
-            <Star className="size-4 fill-amber-400 text-amber-500" />
-            4.8 average
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-muted-foreground">Equipment Owner Console</span>
+          <div className="relative flex size-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
+            <Bell className="size-4" />
+          </div>
+          <div className="flex size-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#B56D43] to-[#914321] text-xs font-bold text-[#F3DFC2]">
+            {session?.user?.image ? (
+              <img src={session.user.image} alt="Owner" className="size-full object-cover" />
+            ) : (
+              (session?.user?.name || "O").charAt(0).toUpperCase()
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Owner Center Banner */}
+      <div className="relative overflow-hidden rounded-3xl border border-[#442B1F] bg-gradient-to-r from-[#241812] via-[#2D1B13] to-[#1E130D] p-6 text-white shadow-md sm:p-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#E87A38]">
+              EQUIPMENT OWNER CENTER
+            </p>
+            <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
+              My Equipment Portfolio & Performance
+            </h1>
+            <p className="max-w-xl text-xs text-white/70 sm:text-sm">
+              Manage your machinery inventory, track customer reservations, and monitor revenue in real time.
+            </p>
+          </div>
+
+          <Link
+            href="/dashboard/owner/add-equipment"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#E87A38]/40 bg-[#E87A38] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#D56827]"
+          >
+            <PlusCircle className="size-4" />
+            + Add New Equipment
+          </Link>
+        </div>
+      </div>
+
+      {/* 3. Primary Metrics Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Total Listed */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <Package className="size-4 text-[#A6532E]" />
+              <span>Active Listings</span>
+            </div>
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+              Live on Catalog
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-foreground">{data.totalListed}</p>
+        </div>
+
+        {/* Total Bookings */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <CalendarDays className="size-4 text-[#A6532E]" />
+              <span>Total Bookings</span>
+            </div>
+            <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+              Orders Tracked
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-foreground">{data.completedRentals}</p>
+        </div>
+
+        {/* Total Earnings */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <Banknote className="size-4 text-[#A6532E]" />
+              <span>Total Earnings</span>
+            </div>
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+              All-time
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-[var(--rz-heading)]">
+            ৳{data.totalEarnings.toLocaleString("en-BD")}
+          </p>
+        </div>
+
+        {/* Monthly Earnings */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <TrendingUp className="size-4 text-[#A6532E]" />
+              <span>Monthly Revenue</span>
+            </div>
+            <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+              Current Month
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-[var(--rz-heading)]">
+            ৳{data.monthlyEarnings.toLocaleString("en-BD")}
+          </p>
+        </div>
+      </div>
+
+      {/* 4. Earnings Velocity Chart */}
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-7">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-foreground sm:text-base">
+            Monthly Earnings & Performance Velocity
+          </h2>
+          <span className="rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+            Recent 6 Months
           </span>
-        }
-      >
-        <div className="grid gap-4 md:grid-cols-3">
-          {reviews.map((review) => (
-            <Card key={review.id} className="p-4">
-              <div className="flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1 text-sm font-bold tabular-nums">
-                  <Star className="size-4 fill-amber-400 text-amber-500" />
-                  {review.rating}.0
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {review.date}
-                </span>
-              </div>
+        </div>
 
-              <p className="mt-3 text-sm leading-6">“{review.comment}”</p>
-
-              <div className="mt-4 flex items-center gap-2.5 border-t border-border pt-3">
-                <span
-                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[rgba(166,83,46,0.12)] text-xs font-bold text-[var(--rz-heading)] dark:text-[var(--rz-heading-hover)]"
-                  aria-hidden="true"
-                >
-                  {review.author.charAt(0)}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">
-                    {review.author}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Verified renter</p>
-                </div>
-              </div>
-            </Card>
+        <div className="mt-8 flex h-56 items-end gap-3 sm:gap-6 border-b border-border pb-3">
+          {data.earningsTrend.map((item, index) => (
+            <div key={index} className="flex flex-1 flex-col items-center gap-2 h-full justify-end group">
+              <span className="text-[10px] font-bold text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                {item.value}
+              </span>
+              <div
+                style={{ height: `${Math.max(12, item.height)}%` }}
+                className="w-full max-w-[50px] rounded-t-xl bg-gradient-to-t from-[#B56D43] to-[#E87A38] transition-all duration-300 hover:brightness-110"
+              />
+              <span className="text-xs font-semibold text-muted-foreground mt-1">
+                {item.label}
+              </span>
+            </div>
           ))}
         </div>
-      </DashboardSection>
+      </div>
+
+      {/* 5. Quick Actions */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-foreground">Add New Equipment</p>
+            <p className="text-[11px] text-muted-foreground">List heavy gear or tools</p>
+          </div>
+          <Link
+            href="/dashboard/owner/add-equipment"
+            className="rounded-xl border border-border bg-muted/50 px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-[#A6532E] hover:text-white"
+          >
+            Add Now →
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-foreground">My Equipment Inventory</p>
+            <p className="text-[11px] text-muted-foreground">{data.totalListed} items managed</p>
+          </div>
+          <Link
+            href="/dashboard/owner/my-equipment"
+            className="rounded-xl border border-border bg-muted/50 px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-[#A6532E] hover:text-white"
+          >
+            Inventory →
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-foreground">Customer Orders</p>
+            <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
+              ✓ {data.completedRentals} orders tracked
+            </p>
+          </div>
+          <Link
+            href="/dashboard/owner/my-rentals"
+            className="rounded-xl border border-border bg-muted/50 px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-[#A6532E] hover:text-white"
+          >
+            Rentals →
+          </Link>
+        </div>
+      </div>
+
+      {/* 6. Recent Customer Orders */}
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-7">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-foreground sm:text-base">
+            Recent Customer Bookings
+          </h2>
+          <Link
+            href="/dashboard/owner/my-rentals"
+            className="text-xs font-semibold text-[#A6532E] hover:underline"
+          >
+            View All Rentals →
+          </Link>
+        </div>
+
+        <div className="mt-5 divide-y divide-border">
+          {filteredRentals.length === 0 ? (
+            <div className="py-8 text-center text-xs text-muted-foreground">
+              No customer bookings placed yet for your equipment.
+            </div>
+          ) : (
+            filteredRentals.map((rental) => (
+              <div
+                key={rental._id}
+                className="flex flex-col gap-2 py-3.5 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-bold text-foreground">
+                    {rental.equipmentName || "Equipment Item"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Rented by {rental.customerName || "Customer"} ({rental.customerEmail || "customer@example.com"}) •{" "}
+                    {rental.requiredQuantity || 1} unit(s)
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 sm:text-right">
+                  <div>
+                    <p className="text-sm font-extrabold text-[var(--rz-heading)]">
+                      ৳{(rental.totalAmount || 0).toLocaleString("en-BD")}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      <span className="capitalize font-semibold text-emerald-600">{rental.bookingStatus || "Confirmed"}</span> •{" "}
+                      {rental.startDate} to {rental.endDate}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }

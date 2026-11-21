@@ -29,6 +29,7 @@ export type FormDataProps = {
   email: string;
   password: string;
   role: UserRole;
+  image?: string;
 };
 
 export type AuthFormProps = {
@@ -147,6 +148,7 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
       email: String(formData.get("email") || ""),
       password: String(formData.get("password") || ""),
       role: selectedRole,
+      image: String(formData.get("image") || "").trim(),
     };
 
     await onSubmit(values);

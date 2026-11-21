@@ -36,32 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-interface EquipmentDetail {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  location: string;
-  rentalTypes: string[];
-  rentalPrice: {
-    daily?: number | null;
-    weekly?: number | null;
-    monthly?: number | null;
-  };
-  availableQuantity: number;
-  condition: string;
-  brand: string;
-  model: string;
-  image: string;
-  images?: string[];
-  rentalTerms?: string[] | string;
-  ownerId?: string;
-  ownerName?: string;
-  ownerEmail?: string;
-  status: string;
-  createdAt: string;
-}
+import type { EquipmentDetail } from "@/types/equipment";
 
 export default function EquipmentDetailsPage() {
   const params = useParams<{ id: string }>();

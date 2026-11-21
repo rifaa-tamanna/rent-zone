@@ -31,29 +31,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { apiFetch } from "@/lib/api";
-
-type Equipment = {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  location: string;
-  rentalPrice: {
-    daily: number | null;
-    weekly: number | null;
-    monthly: number | null;
-  };
-  rentalTypes: string[];
-  availableQuantity: number;
-  condition: string;
-  brand: string;
-  model: string;
-  image: string;
-  images?: string[];
-  rentalTerms?: string[] | string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: string;
-};
+import type { Equipment } from "@/types/equipment";
 
 type EquipmentResponse = {
   success: boolean;

@@ -1,41 +1,48 @@
 import { authClient } from "@/lib/auth-client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+export interface ApiFetchOptions extends RequestInit {
+  requireAuth?: boolean;
+}
 
 export async function apiFetch<T>(
   path: string,
-  options: RequestInit = {},
+  options: ApiFetchOptions = {},
 ): Promise<T> {
-  if (!API_URL) {
-    throw new Error("Backend API URL is missing");
+  const { requireAuth = false, headers: customHeaders, ...restOptions } = options;
+
+  const headers = new Headers(customHeaders);
+
+  try {
+    const { data } = await authClient.token();
+    if (data?.token) {
+      headers.set("Authorization", `Bearer ${data.token}`);
+    } else if (requireAuth) {
+      throw new Error("Please sign in to continue.");
+    }
+  } catch (err) {
+    if (requireAuth) {
+      throw err instanceof Error ? err : new Error("Please sign in to continue.");
+    }
   }
-
-  const { data, error } = await authClient.token();
-
-  if (error || !data?.token) {
-    throw new Error("Please sign in to continue.");
-  }
-
-  const headers = new Headers(options.headers);
-
-  headers.set("Authorization", `Bearer ${data.token}`);
 
   if (
-    options.body &&
-    !(options.body instanceof FormData) &&
+    restOptions.body &&
+    !(restOptions.body instanceof FormData) &&
     !headers.has("Content-Type")
   ) {
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(
-    `${API_URL.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`,
-    {
-      ...options,
-      headers,
-      cache: "no-store",
-    },
-  );
+  const cleanBase = (API_URL || "").replace(/\/+$/, "");
+  const cleanPath = path.replace(/^\/+/, "");
+
+  const response = await fetch(`${cleanBase}/${cleanPath}`, {
+    ...restOptions,
+    headers,
+    cache: "no-store",
+  });
 
   const result = await response.json().catch(() => null);
 

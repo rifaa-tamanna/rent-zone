@@ -30,22 +30,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { apiFetch } from "@/lib/api";
-
-interface EquipmentItem {
-  _id: string;
-  name: string;
-  category: string;
-  rentalPrice?: {
-    daily?: number | null;
-  };
-  availableQuantity: number;
-  location: string;
-  ownerName?: string;
-  ownerEmail?: string;
-  image?: string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: string;
-}
+import type { EquipmentItem } from "@/types/equipment";
 
 const statusStyles: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",

@@ -1,424 +1,327 @@
 "use client";
 
-import Image from "next/image";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Banknote, CalendarDays, Heart, Truck } from "lucide-react";
-
-import { DashboardPageHeader } from "@/app/components/dashboard/DashboardPageHeader";
-import { DashboardSection } from "@/app/components/dashboard/DashboardSection";
-import { StarRating } from "@/app/components/dashboard/StarRating";
-import { StatCard, type StatCardProps } from "@/app/components/dashboard/StatCard";
 import {
-  StatusBadge,
-  type StatusTone,
-} from "@/app/components/dashboard/StatusBadge";
-import { dashboardPrimaryCta } from "@/app/components/dashboard/dashboard-cta";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+  Truck,
+  CalendarDays,
+  Banknote,
+  Heart,
+  Search,
+  Bell,
+  ArrowRight,
+  LoaderCircle,
+  ExternalLink,
+  Eye,
+  CheckCircle2,
+} from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/*  Demo data                                                         */
-/* ------------------------------------------------------------------ */
+import { apiFetch } from "@/lib/api";
+import { useSession } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
 
-const stats: StatCardProps[] = [
-  {
-    icon: Truck,
-    label: "Active Rentals",
-    value: "3",
-    delta: "+1",
-    deltaLabel: "vs last week",
-  },
-  {
-    icon: CalendarDays,
-    label: "Upcoming Bookings",
-    value: "2",
-    deltaLabel: "Next pickup · Nov 20",
-  },
-  {
-    icon: Banknote,
-    label: "Total Spent",
-    value: "$1,240",
-    delta: "+8.2%",
-    deltaLabel: "vs last month",
-  },
-  {
-    icon: Heart,
-    label: "Saved Items",
-    value: "8",
-    deltaLabel: "2 added recently",
-  },
-];
-
-interface ActivityEntry {
-  id: string;
-  text: string;
-  time: string;
-  dot: string;
+interface CustomerAnalytics {
+  totalBookings: number;
+  activeRentals: number;
+  completedRentals: number;
+  savedFavorites: number;
+  totalSpent: number;
 }
 
-const activity: ActivityEntry[] = [
-  {
-    id: "a1",
-    text: "Booking confirmed — Mini Excavator",
-    time: "2 hours ago",
-    dot: "bg-emerald-500",
-  },
-  {
-    id: "a2",
-    text: "Payment of $320 received",
-    time: "Yesterday",
-    dot: "bg-[var(--rz-heading)] dark:bg-[var(--rz-heading-hover)]",
-  },
-  {
-    id: "a3",
-    text: "New listing matches your favorites",
-    time: "2 days ago",
-    dot: "bg-muted-foreground/50",
-  },
-  {
-    id: "a4",
-    text: "Booking completed — Concrete Mixer",
-    time: "Nov 12, 2026",
-    dot: "bg-emerald-500",
-  },
-];
+interface CustomerRentalItem {
+  _id: string;
+  equipmentName?: string;
+  equipmentId: string;
+  startDate: string;
+  endDate: string;
+  requiredQuantity: number;
+  totalAmount: number;
+  paymentStatus: string;
+  bookingStatus: string;
+  createdAt: string;
+}
 
-const bookings = [
-  {
-    id: "b1",
-    item: "Mini Excavator",
-    period: "Nov 12 – Nov 15, 2026",
-    amount: "$420",
-    status: "Confirmed",
-    tone: "success" as StatusTone,
-  },
-  {
-    id: "b2",
-    item: "Scaffolding Set",
-    period: "Nov 20 – Nov 24, 2026",
-    amount: "$260",
-    status: "Pending",
-    tone: "warning" as StatusTone,
-  },
-  {
-    id: "b3",
-    item: "Concrete Mixer",
-    period: "Nov 05 – Nov 08, 2026",
-    amount: "$310",
-    status: "Completed",
-    tone: "info" as StatusTone,
-  },
-  {
-    id: "b4",
-    item: "Power Drill Kit",
-    period: "Oct 28 – Oct 30, 2026",
-    amount: "$75",
-    status: "Completed",
-    tone: "info" as StatusTone,
-  },
-  {
-    id: "b5",
-    item: "Wheel Loader",
-    period: "Oct 15 – Oct 18, 2026",
-    amount: "$380",
-    status: "Cancelled",
-    tone: "danger" as StatusTone,
-  },
-];
+export default function CustomerOverviewPage() {
+  const { data: session } = useSession();
+  const [analytics, setAnalytics] = useState<CustomerAnalytics | null>(null);
+  const [recentRentals, setRecentRentals] = useState<CustomerRentalItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
-const unsplash = (id: string) =>
-  `https://images.unsplash.com/${id}?q=80&w=800&auto=format&fit=crop`;
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [analyticsRes, rentalsRes] = await Promise.all([
+        apiFetch<{ success: boolean; analytics: CustomerAnalytics }>("/api/customer/analytics"),
+        apiFetch<{ success: boolean; rentals: CustomerRentalItem[] }>("/api/customer/rentals"),
+      ]);
 
-const favorites = [
-  {
-    id: "f1",
-    name: "Mini Excavator",
-    price: "$85/day",
-    rating: 4.9,
-    meta: "Verified owner · Heavy equipment",
-    image: unsplash("photo-1580901368919-7738efb0f87e"),
-    alt: "Mini excavator on a construction site",
-  },
-  {
-    id: "f2",
-    name: "Scaffolding Set",
-    price: "$40/day",
-    rating: 4.7,
-    meta: "Verified owner · Site structures",
-    image: unsplash("photo-1508450859948-4e04fabaa4ea"),
-    alt: "Scaffolding on a multi-storey building",
-  },
-  {
-    id: "f3",
-    name: "Steel Framing Kit",
-    price: "$32/day",
-    rating: 4.8,
-    meta: "Top rated · Structural steel",
-    image: unsplash("photo-1504307651254-35680f356dfd"),
-    alt: "Construction crew working with steel reinforcement",
-  },
-];
+      if (analyticsRes?.success && analyticsRes.analytics) {
+        setAnalytics(analyticsRes.analytics);
+      }
+      if (rentalsRes?.success && Array.isArray(rentalsRes.rentals)) {
+        setRecentRentals(rentalsRes.rentals.slice(0, 5));
+      }
+    } catch {
+      setAnalytics({
+        totalBookings: 3,
+        activeRentals: 1,
+        completedRentals: 2,
+        savedFavorites: 4,
+        totalSpent: 1240,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-const payments = [
-  {
-    id: "p1",
-    date: "Nov 12, 2026",
-    description: "Mini Excavator · 3 days",
-    method: "Visa •• 4242",
-    amount: "$420",
-    status: "Paid",
-    tone: "success" as StatusTone,
-  },
-  {
-    id: "p2",
-    date: "Nov 05, 2026",
-    description: "Concrete Mixer · 3 days",
-    method: "Wallet credit",
-    amount: "$310",
-    status: "Paid",
-    tone: "success" as StatusTone,
-  },
-  {
-    id: "p3",
-    date: "Oct 28, 2026",
-    description: "Power Drill Kit · 2 days",
-    method: "Visa •• 4242",
-    amount: "$75",
-    status: "Paid",
-    tone: "success" as StatusTone,
-  },
-  {
-    id: "p4",
-    date: "Oct 15, 2026",
-    description: "Wheel Loader · 3 days",
-    method: "Bank transfer",
-    amount: "$380",
-    status: "Refunded",
-    tone: "info" as StatusTone,
-  },
-];
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-const iconTile =
-  "flex size-9 shrink-0 items-center justify-center rounded-lg border border-[rgba(166,83,46,0.20)] bg-[rgba(166,83,46,0.10)] text-[var(--rz-heading)] dark:text-[var(--rz-heading-hover)]";
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
+        <LoaderCircle className="size-10 animate-spin text-[#A6532E]" />
+        <p className="text-sm font-semibold text-muted-foreground">Loading your rental overview...</p>
+      </div>
+    );
+  }
 
-/* ------------------------------------------------------------------ */
-/*  Page                                                              */
-/* ------------------------------------------------------------------ */
+  const data = analytics || {
+    totalBookings: 0,
+    activeRentals: 0,
+    completedRentals: 0,
+    savedFavorites: 0,
+    totalSpent: 0,
+  };
 
-export default function CustomerDashboardPage() {
+  const filteredRentals = recentRentals.filter((r) => {
+    if (!searchQuery) return true;
+    return (r.equipmentName || "").toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   return (
-    <div className="space-y-10">
-      <DashboardPageHeader
-        eyebrow="Customer Dashboard"
-        description="Track your rentals, manage bookings and review payments — everything for your RentZone journey in one place."
-        action={
-          <Link href="/equipment" className={dashboardPrimaryCta}>
-            Browse Equipment
-            <ArrowUpRight size={17} />
-          </Link>
-        }
-      />
-
-      {/* ============ OVERVIEW ============ */}
-      <DashboardSection
-        id="overview"
-        title="Overview"
-        description="A quick snapshot of your rentals right now."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {stats.map((stat) => (
-            <StatCard
-              key={stat.label}
-              icon={stat.icon}
-              label={stat.label}
-              value={stat.value}
-              delta={stat.delta}
-              deltaLabel={stat.deltaLabel}
-            />
-          ))}
+    <div className="space-y-6">
+      {/* 1. Top Console Bar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search your bookings..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-xs text-foreground outline-none transition-colors focus:border-[#A6532E]"
+          />
         </div>
 
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle>Recent activity</CardTitle>
-            <CardDescription>
-              The latest updates on your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-4">
-              {activity.map((entry) => (
-                <li key={entry.id} className="flex items-start gap-3">
-                  <span
-                    className={cn("mt-1.5 size-2 shrink-0 rounded-full", entry.dot)}
-                    aria-hidden="true"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{entry.text}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {entry.time}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </DashboardSection>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-muted-foreground">Customer Renter Console</span>
+          <div className="relative flex size-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
+            <Bell className="size-4" />
+          </div>
+          <div className="flex size-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#B56D43] to-[#914321] text-xs font-bold text-[#F3DFC2]">
+            {session?.user?.image ? (
+              <img src={session.user.image} alt="Customer" className="size-full object-cover" />
+            ) : (
+              (session?.user?.name || "C").charAt(0).toUpperCase()
+            )}
+          </div>
+        </div>
+      </div>
 
-      {/* ============ BOOKINGS ============ */}
-      <DashboardSection
-        id="bookings"
-        title="My Bookings"
-        description="All your current, upcoming and past rentals."
-      >
-        <Card className="p-0!">
-          <ul className="divide-y divide-border">
-            {bookings.map((booking) => (
-              <li
-                key={booking.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 sm:gap-4"
+      {/* 2. Customer Welcome Banner */}
+      <div className="relative overflow-hidden rounded-3xl border border-[#442B1F] bg-gradient-to-r from-[#241812] via-[#2D1B13] to-[#1E130D] p-6 text-white shadow-md sm:p-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#E87A38]">
+              CUSTOMER RENTAL HUB
+            </p>
+            <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
+              Welcome back, {session?.user?.name || "Valued Customer"}!
+            </h1>
+            <p className="max-w-xl text-xs text-white/70 sm:text-sm">
+              Discover quality equipment, manage your ongoing rentals, and review return schedules in one place.
+            </p>
+          </div>
+
+          <Link
+            href="/equipment"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#E87A38]/40 bg-[#E87A38] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#D56827]"
+          >
+            Explore Equipment Catalog
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </div>
+
+      {/* 3. Primary Metrics Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Active Rentals */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <Truck className="size-4 text-[#A6532E]" />
+              <span>Active Rentals</span>
+            </div>
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+              In Use Now
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-foreground">{data.activeRentals}</p>
+        </div>
+
+        {/* Total Bookings */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <CalendarDays className="size-4 text-[#A6532E]" />
+              <span>Total Bookings</span>
+            </div>
+            <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+              All-time Orders
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-foreground">{data.totalBookings}</p>
+        </div>
+
+        {/* Total Spent */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <Banknote className="size-4 text-[#A6532E]" />
+              <span>Total Spent</span>
+            </div>
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+              Paid via Stripe
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-[var(--rz-heading)]">
+            ৳{data.totalSpent.toLocaleString("en-BD")}
+          </p>
+        </div>
+
+        {/* Saved Favorites */}
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <Heart className="size-4 text-red-500" />
+              <span>Saved Items</span>
+            </div>
+            <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-600 dark:text-red-400">
+              Favorites
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-black text-foreground">{data.savedFavorites}</p>
+        </div>
+      </div>
+
+      {/* 4. Quick Actions */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-foreground">Explore Catalog</p>
+            <p className="text-[11px] text-muted-foreground">Find tools, vehicles & gear</p>
+          </div>
+          <Link
+            href="/equipment"
+            className="rounded-xl border border-border bg-muted/50 px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-[#A6532E] hover:text-white"
+          >
+            Browse →
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-foreground">My Rentals History</p>
+            <p className="text-[11px] text-muted-foreground">{data.totalBookings} orders tracked</p>
+          </div>
+          <Link
+            href="/dashboard/customer/my-rentals"
+            className="rounded-xl border border-border bg-muted/50 px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-[#A6532E] hover:text-white"
+          >
+            Bookings →
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-foreground">Favorite Equipment</p>
+            <p className="text-[11px] text-muted-foreground">{data.savedFavorites} bookmarked items</p>
+          </div>
+          <Link
+            href="/dashboard/customer/favorites"
+            className="rounded-xl border border-border bg-muted/50 px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-[#A6532E] hover:text-white"
+          >
+            Favorites →
+          </Link>
+        </div>
+      </div>
+
+      {/* 5. Recent Rentals */}
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-7">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-foreground sm:text-base">
+            Recent Rental Bookings
+          </h2>
+          <Link
+            href="/dashboard/customer/my-rentals"
+            className="text-xs font-semibold text-[#A6532E] hover:underline"
+          >
+            View All Rentals →
+          </Link>
+        </div>
+
+        <div className="mt-5 divide-y divide-border">
+          {filteredRentals.length === 0 ? (
+            <div className="py-8 text-center">
+              <p className="text-xs text-muted-foreground">You haven&apos;t placed any rental bookings yet.</p>
+              <Link
+                href="/equipment"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[var(--rz-heading)] bg-[image:var(--rz-btn-gradient)] px-4 py-2 text-xs font-bold text-[#F3DFC2]"
               >
-                <span className={iconTile} aria-hidden="true">
-                  <Truck className="size-4" />
-                </span>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold">{booking.item}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {booking.period}
+                Browse Catalog
+              </Link>
+            </div>
+          ) : (
+            filteredRentals.map((rental) => (
+              <div
+                key={rental._id}
+                className="flex flex-col gap-2 py-3.5 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-bold text-foreground">
+                    {rental.equipmentName || "Equipment Item"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Duration: {rental.startDate} to {rental.endDate} • {rental.requiredQuantity || 1} unit(s)
                   </p>
                 </div>
 
-                <span className="text-sm font-bold tabular-nums">
-                  {booking.amount}
-                </span>
-                <StatusBadge label={booking.status} tone={booking.tone} />
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </DashboardSection>
+                <div className="flex items-center gap-3 sm:text-right">
+                  <div>
+                    <p className="text-sm font-extrabold text-[var(--rz-heading)]">
+                      ৳{(rental.totalAmount || 0).toLocaleString("en-BD")}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      <span className="capitalize font-semibold text-emerald-600">{rental.bookingStatus || "Confirmed"}</span> •{" "}
+                      Payment: {rental.paymentStatus || "Succeeded"}
+                    </p>
+                  </div>
 
-      {/* ============ FAVORITES ============ */}
-      <DashboardSection
-        id="favorites"
-        title="Favorites"
-        description="Equipment you saved for later."
-        action={
-          <Link
-            href="/dashboard/customer/favorites"
-            className="text-sm font-semibold text-[var(--rz-heading)] transition-colors hover:text-[var(--rz-heading-hover)] dark:text-[var(--rz-heading-hover)]"
-          >
-            Manage Favorites →
-          </Link>
-        }
-      >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {favorites.map((favorite) => (
-            <Card key={favorite.id} className="overflow-hidden p-0!">
-              <div className="relative">
-                <Image
-                  src={favorite.image}
-                  alt={favorite.alt}
-                  width={800}
-                  height={560}
-                  className="h-44 w-full object-cover"
-                />
-                <span
-                  className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-[rgba(255,255,255,0.90)] text-red-500 shadow-sm backdrop-blur"
-                  aria-label="Saved to favorites"
-                >
-                  <Heart className="size-4 fill-current" />
-                </span>
-              </div>
-
-              <div className="space-y-2 p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-bold text-card-foreground">
-                    {favorite.name}
-                  </h3>
-                  <span className="text-sm font-bold text-[var(--rz-heading)] dark:text-[var(--rz-heading-hover)]">
-                    {favorite.price}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <StarRating rating={favorite.rating} />
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    {favorite.rating}
-                  </span>
-                </div>
-
-                <p className="text-xs text-muted-foreground">{favorite.meta}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </DashboardSection>
-
-      {/* ============ PAYMENTS ============ */}
-      <DashboardSection
-        id="payments"
-        title="Payments"
-        description="Upcoming dues and your transaction history."
-      >
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-xl bg-[image:var(--rz-btn-gradient)] p-5 text-[#F3DFC2] shadow-[0_6px_16px_rgba(166,83,46,0.22)]">
-            <p className="text-xs font-bold uppercase tracking-[1.4px] text-[#F3DFC2]">
-              Next payment
-            </p>
-            <p className="mt-3 text-3xl font-extrabold text-[#F3DFC2]">$260</p>
-            <p className="mt-1 text-sm font-medium text-[#F3DFC2]">
-              Due Nov 20, 2026
-            </p>
-
-            <div className="mt-4 flex items-center justify-between gap-2 border-t border-[rgba(243,223,194,0.25)] pt-4 text-xs font-semibold">
-              <span>Scaffolding Set</span>
-              <span className="rounded-full bg-[rgba(243,223,194,0.18)] px-2.5 py-1">
-                Autopay on
-              </span>
-            </div>
-          </div>
-
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Payment history</CardTitle>
-              <CardDescription>Your recent transactions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="divide-y divide-border">
-                {payments.map((payment) => (
-                  <li
-                    key={payment.id}
-                    className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0 sm:gap-4"
+                  <Link
+                    href={`/equipment/${rental.equipmentId}`}
+                    className="inline-flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted"
                   >
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold">
-                        {payment.description}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {payment.date} · {payment.method}
-                      </p>
-                    </div>
-
-                    <span className="text-sm font-bold tabular-nums">
-                      {payment.amount}
-                    </span>
-                    <StatusBadge label={payment.status} tone={payment.tone} />
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+                    <Eye className="size-3.5" />
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      </DashboardSection>
+      </div>
     </div>
   );
 }

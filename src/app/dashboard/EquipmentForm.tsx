@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 import { Card } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
+import type { Equipment } from "@/types/equipment";
 
 const inputClass =
   "w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[#A6532E] focus:ring-2 focus:ring-[#A6532E]/20";
@@ -29,23 +30,6 @@ const labelClass = "text-sm font-semibold text-foreground";
 type SelectedImage = {
   file: File;
   preview: string;
-};
-
-type Equipment = {
-  _id: string;
-  name: string;
-  description: string;
-  category: string;
-  location: string;
-  rentalTypes: string[];
-  rentalPrice: Record<string, number | null>;
-  availableQuantity: number;
-  condition: string;
-  brand: string;
-  model: string;
-  image: string;
-  images?: string[];
-  rentalTerms?: string[] | string;
 };
 
 type EquipmentFormProps = {

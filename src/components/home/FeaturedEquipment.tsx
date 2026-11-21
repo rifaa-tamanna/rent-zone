@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
+import { apiFetch } from "@/lib/api";
 import { ArrowRight, Heart, MapPin, Star } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
@@ -105,26 +106,50 @@ const cardVariants = {
   },
 };
 
+interface EquipmentCardItem {
+  id: string;
+  name: string;
+  category: string;
+  rating: number;
+  reviews: number;
+  location: string;
+  price: number;
+  image: string;
+}
+
+interface RawEquipmentApiItem {
+  _id: string;
+  name: string;
+  category: string;
+  location: string;
+  image: string;
+  rentalPrice?: {
+    daily?: number | null;
+    weekly?: number | null;
+    monthly?: number | null;
+  };
+}
+
 const FeaturedEquipment = () => {
   const router = useRouter();
   const { data: session, isPending } = useSession();
 
   const shouldReduceMotion = useReducedMotion();
 
-  const [items, setItems] = useState<any[]>(featuredEquipment);
+  const [items, setItems] = useState<EquipmentCardItem[]>(featuredEquipment);
   const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-    fetch(`${apiUrl.replace(/\/+$/, "")}/api/equipment/featured`)
-      .then((res) => res.json())
+    apiFetch<{ success: boolean; equipment: RawEquipmentApiItem[] }>(
+      "/api/equipment/featured",
+    )
       .then((data) => {
         if (
           data?.success &&
           Array.isArray(data?.equipment) &&
           data.equipment.length > 0
         ) {
-          const mapped = data.equipment.map((item: any) => ({
+          const mapped = data.equipment.map((item: RawEquipmentApiItem) => ({
             id: item._id,
             name: item.name,
             category: item.category,

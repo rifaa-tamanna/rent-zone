@@ -19,20 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
-
-interface RentalBooking {
-  _id: string;
-  equipmentId: string;
-  equipmentName: string;
-  equipmentImage?: string;
-  startDate: string;
-  endDate: string;
-  createdAt: string;
-  totalAmount: number;
-  paymentStatus: "paid" | "unpaid" | "pending";
-  bookingStatus: "confirmed" | "completed" | "cancelled" | "pending";
-  requiredQuantity?: number;
-}
+import type { RentalBooking } from "@/types/booking";
 
 const paymentStatusStyles: Record<string, string> = {
   paid: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",

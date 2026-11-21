@@ -261,7 +261,7 @@ export function DashboardSidebar() {
       className="border-r border-sidebar-border bg-sidebar font-sans"
     >
       {/* Header */}
-      <SidebarHeader className="gap-5 px-4 pb-5 pt-5 md:pt-[82px] lg:pt-[90px] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:pb-3">
+      <SidebarHeader className="gap-5 px-4 pb-5 pt-5 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:pb-3">
         <Link
           href="/"
           onClick={() => setOpenMobile(false)}
