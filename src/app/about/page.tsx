@@ -235,10 +235,10 @@ export default function AboutUsPage() {
                 transition={spring}
               >
                 <Link
-                  href="/rentals"
+                  href="/equipment"
                   className="group/btn inline-flex items-center gap-2 rounded-xl bg-[linear-gradient(135deg,#B56D43,#914321)] px-6 py-3.5 text-sm font-bold text-[#F3DFC2] shadow-lg shadow-[#A6532E]/20 transition-shadow duration-300 hover:shadow-xl"
                 >
-                  Explore Rentals
+                  Explore Equipment
                   <ArrowRight
                     size={17}
                     className="transition-transform duration-300 group-hover/btn:translate-x-1"
@@ -601,10 +601,10 @@ export default function AboutUsPage() {
                   transition={spring}
                 >
                   <Link
-                    href="/rentals"
+                    href="/equipment"
                     className="group/btn inline-flex items-center gap-2 rounded-xl bg-[#F3DFC2] px-6 py-3.5 text-sm font-bold text-[#71391F] shadow-lg transition-colors duration-300 hover:bg-white"
                   >
-                    Browse Rentals
+                    Browse Equipment
                     <ArrowRight
                       size={17}
                       className="transition-transform duration-300 group-hover/btn:translate-x-1"

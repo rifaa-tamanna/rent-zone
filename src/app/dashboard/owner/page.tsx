@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Banknote,
@@ -28,6 +29,7 @@ import {
   dashboardSecondaryCta,
 } from "@/app/components/dashboard/dashboard-cta";
 import { Card } from "@/components/ui/card";
+import { apiFetch } from "@/lib/api";
 
 /* ------------------------------------------------------------------ */
 /*  Demo data                                                         */
@@ -202,6 +204,49 @@ const iconTile =
 /* ------------------------------------------------------------------ */
 
 export default function OwnerDashboardPage() {
+  const [analytics, setAnalytics] = useState<any>(null);
+
+  useEffect(() => {
+    apiFetch<{ success: boolean; analytics: any }>("/api/bookings/owner/analytics")
+      .then((res) => {
+        if (res?.analytics) {
+          setAnalytics(res.analytics);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const dynamicStats = [
+    {
+      icon: Package,
+      label: "Listed Equipment",
+      value: analytics ? String(analytics.totalListed) : stats[0].value,
+      delta: "+1",
+      deltaLabel: "this month",
+    },
+    {
+      icon: CalendarDays,
+      label: "Completed Rentals",
+      value: analytics ? String(analytics.completedRentals) : stats[1].value,
+      delta: "+18%",
+      deltaLabel: "all time",
+    },
+    {
+      icon: Banknote,
+      label: "Monthly Earnings",
+      value: analytics ? `৳${Number(analytics.monthlyEarnings).toLocaleString()}` : stats[2].value,
+      delta: "+11%",
+      deltaLabel: "current month",
+    },
+    {
+      icon: TrendingUp,
+      label: "Total Earnings",
+      value: analytics ? `৳${Number(analytics.totalEarnings).toLocaleString()}` : "$3,480",
+      delta: "+4%",
+      deltaLabel: "gross profit",
+    },
+  ];
+
   return (
     <div className="space-y-10">
       <DashboardPageHeader
@@ -209,9 +254,9 @@ export default function OwnerDashboardPage() {
         description="Manage your listings, respond to booking requests and keep track of your rental income."
         action={
           <>
-            <a href="#listings" className={dashboardPrimaryCta}>
+            <Link href="/dashboard/owner/my-equipment" className={dashboardPrimaryCta}>
               Manage Listings
-            </a>
+            </Link>
             <Link href="/" className={dashboardSecondaryCta}>
               Preview Website
             </Link>
@@ -226,7 +271,7 @@ export default function OwnerDashboardPage() {
         description="How your rental business is performing this month."
       >
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {stats.map((stat) => (
+          {dynamicStats.map((stat) => (
             <StatCard
               key={stat.label}
               icon={stat.icon}

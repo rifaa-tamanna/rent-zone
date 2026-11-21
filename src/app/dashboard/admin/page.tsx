@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -25,6 +26,7 @@ import {
 } from "@/app/components/dashboard/dashboard-cta";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { apiFetch } from "@/lib/api";
 
 /* ------------------------------------------------------------------ */
 /*  Demo data                                                         */
@@ -285,6 +287,50 @@ function RoleBadge({ role }: { role: UserRole }) {
 
 export default function AdminDashboardPage() {
   const listingIconByIndex: LucideIcon[] = [Package, ShieldCheck, Flag];
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+
+  useEffect(() => {
+    apiFetch<{ success: boolean; analytics: any }>("/api/admin/analytics")
+      .then((res) => {
+        if (res?.analytics) {
+          setAnalyticsData(res.analytics);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const dynamicStats = [
+    {
+      icon: Users,
+      label: "Total Users",
+      value: analyticsData ? String(analyticsData.totalUsers) : stats[0].value,
+      delta: "+12%",
+      deltaLabel: "registered",
+    },
+    {
+      icon: Package,
+      label: "Total Equipment",
+      value: analyticsData ? String(analyticsData.totalEquipment) : stats[1].value,
+      delta: analyticsData ? `${analyticsData.pendingApprovals} pending` : "+18",
+      deltaLabel: "listed",
+    },
+    {
+      icon: CalendarDays,
+      label: "Total Bookings",
+      value: analyticsData ? String(analyticsData.totalBookings) : stats[2].value,
+      delta: analyticsData ? `${analyticsData.completedRentals} completed` : "+14%",
+      deltaLabel: "rentals",
+    },
+    {
+      icon: CircleDollarSign,
+      label: "Platform Revenue",
+      value: analyticsData ? `৳${Number(analyticsData.totalRevenue).toLocaleString()}` : stats[3].value,
+      delta: "+9.4%",
+      deltaLabel: "earnings",
+    },
+  ];
+
+  const chartData = analyticsData?.monthlyStats?.length > 0 ? analyticsData.monthlyStats : platformTrend;
 
   return (
     <div className="space-y-10">
@@ -293,9 +339,9 @@ export default function AdminDashboardPage() {
         description="Oversee users, listings and bookings across the platform and keep RentZone running smoothly."
         action={
           <>
-            <a href="#reports" className={dashboardPrimaryCta}>
-              Review Reports
-            </a>
+            <Link href="/dashboard/admin/users" className={dashboardPrimaryCta}>
+              Manage Users
+            </Link>
             <Link href="/" className={dashboardSecondaryCta}>
               View Website
             </Link>
@@ -310,7 +356,7 @@ export default function AdminDashboardPage() {
         description="Platform health at a glance."
       >
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {stats.map((stat) => (
+          {dynamicStats.map((stat) => (
             <StatCard
               key={stat.label}
               icon={stat.icon}
@@ -326,7 +372,7 @@ export default function AdminDashboardPage() {
           className="mt-4"
           title="Bookings overview"
           description="All platform bookings over the last 6 months"
-          data={platformTrend}
+          data={chartData}
         />
       </DashboardSection>
 

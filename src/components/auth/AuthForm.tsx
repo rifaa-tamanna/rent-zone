@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -121,6 +123,19 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
   ];
 
   const allPasswordRulesValid = passwordRules.every((rule) => rule.valid);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Google authentication service not responding.",
+      );
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -282,7 +297,7 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
               {/* Google Button */}
               <button
                 type="button"
-                onClick={() => console.log("Google authentication")}
+                onClick={handleGoogleSignIn}
                 className="flex h-[48px] w-full items-center justify-center gap-3 rounded-xl border border-border bg-card text-sm font-semibold text-foreground transition-all duration-300 hover:border-[var(--rz-heading)] hover:bg-[var(--rz-heading)]/5"
               >
                 <span className="text-lg font-extrabold text-[#4285F4]">G</span>

@@ -277,10 +277,10 @@ export default function ContactUsPage() {
                 transition={spring}
               >
                 <Link
-                  href="/rentals"
+                  href="/equipment"
                   className="inline-flex items-center gap-2 rounded-xl border border-[#A6532E]/25 px-6 py-3.5 text-sm font-bold text-[#A6532E] transition-colors duration-300 hover:bg-[#A6532E] hover:text-white"
                 >
-                  Explore Rentals
+                  Explore Equipment
                 </Link>
               </motion.div>
             </motion.div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { ArrowRight, Heart, MapPin, Star } from "lucide-react";
@@ -111,7 +111,38 @@ const FeaturedEquipment = () => {
 
   const shouldReduceMotion = useReducedMotion();
 
+  const [items, setItems] = useState<any[]>(featuredEquipment);
   const [favorites, setFavorites] = useState<string[]>([]);
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    fetch(`${apiUrl.replace(/\/+$/, "")}/api/equipment/featured`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (
+          data?.success &&
+          Array.isArray(data?.equipment) &&
+          data.equipment.length > 0
+        ) {
+          const mapped = data.equipment.map((item: any) => ({
+            id: item._id,
+            name: item.name,
+            category: item.category,
+            rating: 4.9,
+            reviews: 16,
+            location: item.location,
+            price:
+              item.rentalPrice?.daily ||
+              item.rentalPrice?.weekly ||
+              item.rentalPrice?.monthly ||
+              100,
+            image: item.image,
+          }));
+          setItems(mapped);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) =>
@@ -213,7 +244,7 @@ const FeaturedEquipment = () => {
           viewport={{ once: true, amount: 0.1 }}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {featuredEquipment.slice(0, 6).map((equipment) => {
+          {items.slice(0, 6).map((equipment) => {
             const isFavorite = favorites.includes(equipment.id);
 
             return (

@@ -8,6 +8,7 @@ import {
   Construction,
   Laptop,
   Sprout,
+  Sparkles,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
@@ -51,6 +52,14 @@ const categories = [
     icon: Laptop,
     number: "05",
     label: "Electronic Devices",
+  },
+  {
+    id: "events",
+    name: "Event Equipment",
+    description: "Sound systems, stage lighting and premium event gear.",
+    icon: Sparkles,
+    number: "06",
+    label: "Audio & Stage",
   },
 ];
 

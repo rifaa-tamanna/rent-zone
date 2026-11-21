@@ -20,7 +20,7 @@ import { FaFacebookF, FaGithub, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
-  { label: "Browse Rentals", href: "/rentals" },
+  { label: "Browse Equipment", href: "/equipment" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Contact Us", href: "/contact" },
 ];
@@ -487,7 +487,7 @@ export default function Footer() {
             className="w-full sm:w-auto sm:shrink-0"
           >
             <Link
-              href="/rentals"
+              href="/equipment"
               className="
                 group/btn inline-flex w-full items-center justify-center gap-2
                 rounded-xl border border-[#A6532E]
@@ -500,7 +500,7 @@ export default function Footer() {
                 sm:w-auto
               "
             >
-              Explore Rentals
+              Explore Equipment
               <ArrowRight
                 size={17}
                 className="transition-transform duration-300 group-hover/btn:translate-x-1"

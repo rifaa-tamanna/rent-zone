@@ -38,6 +38,15 @@ const reviews = [
     review:
       "A great platform for renting equipment. I really appreciate the verified owners and the simple booking experience.",
   },
+  {
+    id: 4,
+    name: "Sadia Chowdhury",
+    role: "Event Coordinator",
+    image: "https://i.pravatar.cc/120?img=32",
+    rating: 5,
+    review:
+      "The event equipment was top notch and arrived right on schedule. Booking and checkout were seamless!",
+  },
 ];
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];

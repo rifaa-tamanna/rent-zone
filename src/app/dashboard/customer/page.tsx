@@ -218,7 +218,7 @@ export default function CustomerDashboardPage() {
         eyebrow="Customer Dashboard"
         description="Track your rentals, manage bookings and review payments — everything for your RentZone journey in one place."
         action={
-          <Link href="/" className={dashboardPrimaryCta}>
+          <Link href="/equipment" className={dashboardPrimaryCta}>
             Browse Equipment
             <ArrowUpRight size={17} />
           </Link>
@@ -313,10 +313,10 @@ export default function CustomerDashboardPage() {
         description="Equipment you saved for later."
         action={
           <Link
-            href="/"
+            href="/dashboard/customer/favorites"
             className="text-sm font-semibold text-[var(--rz-heading)] transition-colors hover:text-[var(--rz-heading-hover)] dark:text-[var(--rz-heading-hover)]"
           >
-            Browse equipment →
+            Manage Favorites →
           </Link>
         }
       >

@@ -229,7 +229,7 @@ export function DashboardSidebar() {
           `}
           aria-current={active ? "page" : undefined}
           onClick={() => setOpenMobile(false)}
-          render={<a href={item.url} />}
+          render={<Link href={item.url} />}
         >
           {active && (
             <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-full bg-[#A6532E] dark:bg-[#D58A60]" />

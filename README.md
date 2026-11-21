@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚜 RentZone — Equipment Rental Platform (Client)
 
-## Getting Started
+> **Category:** Assignment 9 - Category 003  
+> **Platform:** Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion, BetterAuth  
+> **Live Site:** [https://rent-zone.vercel.app](https://rent-zone.vercel.app) *(Replace with your live production URL)*
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 📌 Project Overview & Purpose
+**RentZone** is a modern equipment rental marketplace designed to bridge the gap between equipment owners and renters. The platform allows equipment owners to list heavy machinery, vehicles, photography equipment, and industrial tools for rent, while enabling customers to seamlessly search, filter, book, and securely pay through Stripe Checkout.
+
+### 🌟 Key Features
+* **Role-Based Access Control (RBAC):** Distinct dashboards and routing permissions for **Customer**, **Owner**, and **Admin**.
+* **Dynamic Server-Side Search & Filter (Challenge 1):** Real-time server-side search by title or location, filtering by category, rental type (daily/weekly/monthly), and price ranges, with multi-level sorting.
+* **Framer Motion Animations:** Smooth, accessible micro-interactions across the Hero banner, featured cards, categories, and reviews.
+* **Favorites System:** Save bookmarked equipment to the database and manage them from the customer dashboard.
+* **Stripe Payment Gateway:** Integrated rental checkout calculation based on booking duration and quantity with real-time payment recording.
+* **Owner Equipment Management:** Multi-image upload to ImgBB, status tracking, item updating, and deletion.
+* **Admin Moderation & Dynamic Analytics (Challenge 3):** Platform-wide metrics, equipment approval/rejection workflows, and user role management.
+* **Dark / Light Theme Toggle:** Instant theme switching stored in local storage.
+* **Robust Error Handling:** Custom 404 page, loading skeletons, and sonner toast alerts.
+
+---
+
+## 🛠️ Tech Stack & NPM Packages
+* **Framework:** Next.js 16 (App Router)
+* **Language:** TypeScript
+* **Styling:** Tailwind CSS v4, Lucide React, TW Animate CSS
+* **Animation:** Motion (`motion/react` & `framer-motion`)
+* **Authentication:** BetterAuth, `@better-auth/mongo-adapter`, Jose JWT
+* **UI Components:** Shadcn UI, Sonner Toaster, Next Themes
+
+---
+
+## 🔑 Environment Variables
+Create a `.env.local` file in the root directory:
+```env
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=your_auth_secret_key
+BETTER_AUTH_DB_URI=your_mongodb_connection_uri
+NEXT_PUBLIC_API_URL=http://localhost:5000
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Getting Started
+```bash
+# Install dependencies
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Run development server
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
