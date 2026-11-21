@@ -5,6 +5,7 @@ import Hero from "@/components/home/Hero";
 import HowItWorks from "@/components/home/How It Works";
 import ReviewsSection from "@/components/home/ReviewsSection";
 import Subscription from "@/components/home/Subscription";
+import TrustedOwnersSection from "@/components/home/TrustedOwnersSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
       <FeaturedEquipment />
       <CategoriesSection />
       <WhyChooseUs />
+      <TrustedOwnersSection />
       <HowItWorks />
       <ReviewsSection />
       <Subscription />
