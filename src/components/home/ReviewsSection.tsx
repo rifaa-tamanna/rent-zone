@@ -40,6 +40,15 @@ const reviews = [
   },
   {
     id: 4,
+    name: "Nahid Hasan",
+    role: "Vihicle Renter",
+    image: "https://i.pravatar.cc/120?img=11",
+    rating: 4.8,
+    review:
+      "A great platform for renting equipment. I really appreciate the verified owners and the simple booking experience.",
+  },
+  {
+    id: 5,
     name: "Sadia Chowdhury",
     role: "Event Coordinator",
     image: "https://i.pravatar.cc/120?img=32",
@@ -285,9 +294,8 @@ export default function ReviewsSection() {
                     opacity: i === index ? 1 : 0.5,
                   }}
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  className={`h-[9px] rounded-full ${
-                    i === index ? "bg-[var(--rz-heading)]" : "bg-border"
-                  }`}
+                  className={`h-[9px] rounded-full ${i === index ? "bg-[var(--rz-heading)]" : "bg-border"
+                    }`}
                 />
               ))}
             </motion.div>
