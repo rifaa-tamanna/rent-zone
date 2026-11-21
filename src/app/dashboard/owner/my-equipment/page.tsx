@@ -128,12 +128,11 @@ export default function DashboardOwnerMyEquipmentPage() {
 
   // Filter equipment
   const filteredEquipment = equipment.filter((item) => {
-    const search = searchTerm.toLowerCase();
-
-    return (
-      item.name.toLowerCase().includes(search) ||
-      item.category.toLowerCase().includes(search)
-    );
+    const search = (searchTerm || "").trim().toLowerCase();
+    if (!search) return true;
+    const name = (item.name || "").toLowerCase();
+    const category = (item.category || "").toLowerCase();
+    return name.includes(search) || category.includes(search);
   });
 
   // Get rental price information

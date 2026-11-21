@@ -117,8 +117,12 @@ export default function AdminUsersPage() {
   };
 
   const filteredUsers = users.filter((u) => {
-    const s = searchTerm.toLowerCase();
-    return u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s) || u.role.toLowerCase().includes(s);
+    const s = (searchTerm || "").trim().toLowerCase();
+    if (!s) return true;
+    const name = (u.name || "").toLowerCase();
+    const email = (u.email || "").toLowerCase();
+    const role = (u.role || "").toLowerCase();
+    return name.includes(s) || email.includes(s) || role.includes(s);
   });
 
   const formatDate = (dateStr: string) => {

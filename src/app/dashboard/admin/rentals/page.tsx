@@ -74,12 +74,17 @@ export default function AdminRentalsPage() {
   }, [fetchRentals]);
 
   const filteredRentals = rentals.filter((r) => {
-    const s = searchTerm.toLowerCase();
+    const s = (searchTerm || "").trim().toLowerCase();
+    if (!s) return true;
+    const equipName = (r.equipmentName || "").toLowerCase();
+    const custName = (r.customerName || "").toLowerCase();
+    const ownName = (r.ownerName || "").toLowerCase();
+    const custEmail = (r.customerEmail || "").toLowerCase();
     return (
-      r.equipmentName.toLowerCase().includes(s) ||
-      r.customerName.toLowerCase().includes(s) ||
-      r.ownerName.toLowerCase().includes(s) ||
-      r.customerEmail.toLowerCase().includes(s)
+      equipName.includes(s) ||
+      custName.includes(s) ||
+      ownName.includes(s) ||
+      custEmail.includes(s)
     );
   });
 

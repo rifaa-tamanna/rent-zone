@@ -101,8 +101,12 @@ export default function AdminEquipmentPage() {
   };
 
   const filteredEquipment = equipment.filter((item) => {
-    const s = searchTerm.toLowerCase();
-    return item.name.toLowerCase().includes(s) || item.category.toLowerCase().includes(s) || item.location.toLowerCase().includes(s);
+    const s = (searchTerm || "").trim().toLowerCase();
+    if (!s) return true;
+    const name = (item.name || "").toLowerCase();
+    const category = (item.category || "").toLowerCase();
+    const location = (item.location || "").toLowerCase();
+    return name.includes(s) || category.includes(s) || location.includes(s);
   });
 
   return (

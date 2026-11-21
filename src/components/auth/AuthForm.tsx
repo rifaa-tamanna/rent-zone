@@ -324,11 +324,10 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
                           type="button"
                           onClick={() => setSelectedRole(role.value)}
                           aria-pressed={isSelected}
-                          className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center transition-all ${
-                            isSelected
-                              ? "border-[#A6532E] bg-[#A6532E]/10 text-[var(--rz-heading)] ring-2 ring-[#A6532E]/10"
-                              : "border-border bg-card text-muted-foreground hover:border-[#A6532E]/50"
-                          }`}
+                          className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 text-center transition-all ${isSelected
+                            ? "border-[#A6532E] bg-[#A6532E]/10 text-[var(--rz-heading)] ring-2 ring-[#A6532E]/10"
+                            : "border-border bg-card text-muted-foreground hover:border-[#A6532E]/50"
+                            }`}
                         >
                           <Icon size={19} />
                           <span className="text-xs font-bold">{role.label}</span>
@@ -477,10 +476,6 @@ export default function AuthForm({ mode, onSubmit }: AuthFormProps) {
             </div>
           </section>
         </div>
-
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} RentZone. All rights reserved.
-        </p>
       </div>
     </main>
   );
