@@ -356,14 +356,14 @@ export function DashboardSidebar() {
             <button
               type="button"
               onClick={async () => {
-                await signOut({
-                  fetchOptions: {
-                    onSuccess: () => {
-                      window.location.href = "/";
-                    },
-                  },
-                });
-                window.location.href = "/";
+                try {
+                  await signOut();
+                } catch (err) {
+                  console.error("Sign out error:", err);
+                }
+                if (typeof window !== "undefined") {
+                  window.location.href = "/";
+                }
               }}
               aria-label="Sign out"
               title="Sign out"

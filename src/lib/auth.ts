@@ -35,6 +35,12 @@ export const auth = betterAuth({
     },
   },
 
+  session: {
+    cookieCache: {
+      enabled: false,
+    },
+  },
+
   user: {
     additionalFields: {
       role: {

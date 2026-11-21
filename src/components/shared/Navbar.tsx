@@ -54,14 +54,18 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     closeMenu();
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          window.location.href = "/";
-        },
-      },
-    });
-    window.location.href = "/";
+    try {
+      await signOut();
+    } catch (err) {
+      console.error("Sign out error:", err);
+    }
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/") {
+        window.location.reload();
+      } else {
+        window.location.href = "/";
+      }
+    }
   };
 
   const primaryButton =
